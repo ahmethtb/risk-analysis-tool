@@ -4,7 +4,7 @@
 
 const SUPABASE_URL = 'https://jhlcymefogldlulkplrk.supabase.co'
 const SUPABASE_KEY = 'sb_publishable_Rh0P0NBYcOD1mRBpoC3cdQ_BwkrSCKY'
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
 
 // ================================
 // PAGINA NAVIGATIE
@@ -28,7 +28,7 @@ async function register() {
   errorEl.textContent = ''
   successEl.textContent = ''
 
-  const { error } = await supabase.auth.signUp({ email, password })
+  const { error } = await db.auth.signUp({ email, password })
 
   if (error) {
     errorEl.textContent = error.message
@@ -45,7 +45,7 @@ async function login() {
 
   errorEl.textContent = ''
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password })
+  const { error } = await db.auth.signInWithPassword({ email, password })
 
   if (error) {
     errorEl.textContent = 'Inloggen mislukt. Controleer je e-mailadres en wachtwoord.'
@@ -55,7 +55,7 @@ async function login() {
 }
 
 async function logout() {
-  await supabase.auth.signOut()
+  await db.auth.signOut()
   showPage('page-login')
 }
 
@@ -64,7 +64,7 @@ async function logout() {
 // ================================
 
 async function init() {
-  const { data: { session } } = await supabase.auth.getSession()
+  const { data: { session } } = await db.auth.getSession()
   if (session) {
     loadDashboard()
   } else {
@@ -79,7 +79,7 @@ async function init() {
 async function loadDashboard() {
   showPage('page-dashboard')
 
-  const { data: analyses, error } = await supabase
+  const { data: analyses, error } = await db
     .from('risk_analyses')
     .select('*')
     .order('updated_at', { ascending: false })
@@ -129,9 +129,9 @@ async function createAnalysis() {
     return
   }
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user } } = await db.auth.getUser()
 
-  const { error } = await supabase
+  const { error } = await db
     .from('risk_analyses')
     .insert({ user_id: user.id, name, description, main_process })
 
@@ -152,7 +152,7 @@ async function createAnalysis() {
 async function deleteAnalysis(id) {
   if (!confirm('Weet je zeker dat je deze analyse wilt verwijderen?')) return
 
-  const { error } = await supabase
+  const { error } = await db
     .from('risk_analyses')
     .delete()
     .eq('id', id)
@@ -169,7 +169,7 @@ let currentAnalysisId = null
 async function openAnalysis(id) {
   currentAnalysisId = id
 
-  const { data: analysis } = await supabase
+  const { data: analysis } = await db
     .from('risk_analyses')
     .select('*')
     .eq('id', id)
@@ -200,7 +200,7 @@ function hideAddRisk() {
 // ================================
 
 async function loadRisks() {
-  const { data: risks, error } = await supabase
+  const { data: risks, error } = await db
     .from('risks')
     .select('*')
     .eq('analysis_id', currentAnalysisId)
@@ -279,7 +279,7 @@ async function saveRisk() {
     return
   }
 
-  const { error } = await supabase
+  const { error } = await db
     .from('risks')
     .insert({
       analysis_id: currentAnalysisId,
@@ -311,7 +311,7 @@ async function saveRisk() {
 async function deleteRisk(id) {
   if (!confirm('Weet je zeker dat je dit risico wilt verwijderen?')) return
 
-  const { error } = await supabase
+  const { error } = await db
     .from('risks')
     .delete()
     .eq('id', id)
