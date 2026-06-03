@@ -1,4 +1,12 @@
 // ================================
+// SUPABASE VERBINDING
+// ================================
+
+const SUPABASE_URL = 'https://jhlcymefogldlulkplrk.supabase.co'
+const SUPABASE_KEY = 'sb_publishable_Rh0P0NBYcOD1mRBpoC3cdQ_BwkrSCKY'
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+
+// ================================
 // PAGINA NAVIGATIE
 // ================================
 
@@ -25,7 +33,8 @@ async function register() {
   if (error) {
     errorEl.textContent = error.message
   } else {
-    successEl.textContent = 'Account aangemaakt! Controleer je e-mail om te bevestigen.'
+    successEl.textContent = 'Account aangemaakt! Je kunt nu inloggen.'
+    showPage('page-login')
   }
 }
 
