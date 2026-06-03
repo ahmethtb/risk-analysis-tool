@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Risk Analysis Tool</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ==================== -->
+  <!-- PAGINA: LOGIN         -->
+  <!-- ==================== -->
+  <div id="page-login" class="page">
+    <div class="auth-box">
+      <h1>Risk Analysis Tool</h1>
+      <h2>Inloggen</h2>
+      <input type="email" id="login-email" placeholder="E-mailadres">
+      <input type="password" id="login-password" placeholder="Wachtwoord">
+      <button onclick="login()">Inloggen</button>
+      <p>Nog geen account? <a href="#" onclick="showPage('page-register')">Registreren</a></p>
+      <p id="login-error" class="error"></p>
+    </div>
+  </div>
+
+  <!-- ==================== -->
+  <!-- PAGINA: REGISTREREN  -->
+  <!-- ==================== -->
+  <div id="page-register" class="page hidden">
+    <div class="auth-box">
+      <h1>Risk Analysis Tool</h1>
+      <h2>Registreren</h2>
+      <input type="email" id="register-email" placeholder="E-mailadres">
+      <input type="password" id="register-password" placeholder="Wachtwoord">
+      <button onclick="register()">Account aanmaken</button>
+      <p>Al een account? <a href="#" onclick="showPage('page-login')">Inloggen</a></p>
+      <p id="register-error" class="error"></p>
+      <p id="register-success" class="success"></p>
+    </div>
+  </div>
+
+  <!-- ==================== -->
+  <!-- PAGINA: DASHBOARD    -->
+  <!-- ==================== -->
+  <div id="page-dashboard" class="page hidden">
+    <div class="topbar">
+      <h1>Risk Analysis Tool</h1>
+      <button onclick="logout()">Uitloggen</button>
+    </div>
+    <div class="content">
+      <div class="content-header">
+        <h2>Mijn Risicoanalyses</h2>
+        <button onclick="showPage('page-new-analysis')">+ Nieuwe Analyse</button>
+      </div>
+      <div id="analyses-list"></div>
+    </div>
+  </div>
+
+  <!-- ========================= -->
+  <!-- PAGINA: NIEUWE ANALYSE    -->
+  <!-- ========================= -->
+  <div id="page-new-analysis" class="page hidden">
+    <div class="topbar">
+      <h1>Risk Analysis Tool</h1>
+      <button onclick="logout()">Uitloggen</button>
+    </div>
+    <div class="content">
+      <h2>Nieuwe Risicoanalyse</h2>
+      <label>Naam</label>
+      <input type="text" id="new-name" placeholder="Bijv. Thailand Vakantie">
+      <label>Beschrijving</label>
+      <input type="text" id="new-description" placeholder="Korte omschrijving">
+      <label>Hoofdproces</label>
+      <input type="text" id="new-process" placeholder="Bijv. Veilig reizen van Nederland naar Thailand en terug">
+      <button onclick="createAnalysis()">Opslaan</button>
+      <button onclick="showPage('page-dashboard')">Annuleren</button>
+      <p id="new-analysis-error" class="error"></p>
+    </div>
+  </div>
+
+  <!-- ========================= -->
+  <!-- PAGINA: ANALYSE DETAIL    -->
+  <!-- ========================= -->
+  <div id="page-detail" class="page hidden">
+    <div class="topbar">
+      <h1>Risk Analysis Tool</h1>
+      <button onclick="logout()">Uitloggen</button>
+    </div>
+    <div class="content">
+      <button onclick="showPage('page-dashboard')">← Terug naar dashboard</button>
+      <h2 id="detail-name"></h2>
+      <p id="detail-description"></p>
+      <p><strong>Hoofdproces:</strong> <span id="detail-process"></span></p>
+
+      <hr>
+
+      <div class="content-header">
+        <h3>Risico's</h3>
+        <button onclick="showAddRisk()">+ Risico toevoegen</button>
+      </div>
+
+      <!-- Risico toevoegen formulier -->
+      <div id="add-risk-form" class="hidden">
+        <h4>Nieuw Risico</h4>
+        <label>Component</label>
+        <input type="text" id="risk-component" placeholder="Bijv. Paspoort">
+        <label>Scenario</label>
+        <input type="text" id="risk-scenario" placeholder="Bijv. Paspoort kwijt">
+        <label>Kans (1-5)</label>
+        <select id="risk-likelihood">
+          <option value="1">1 - Zeer onwaarschijnlijk</option>
+          <option value="2">2 - Onwaarschijnlijk</option>
+          <option value="3">3 - Mogelijk</option>
+          <option value="4">4 - Waarschijnlijk</option>
+          <option value="5">5 - Zeer waarschijnlijk</option>
+        </select>
+        <label>Impact (1-5)</label>
+        <select id="risk-impact">
+          <option value="1">1 - Verwaarloosbaar</option>
+          <option value="2">2 - Klein</option>
+          <option value="3">3 - Matig</option>
+          <option value="4">4 - Groot</option>
+          <option value="5">5 - Catastrofaal</option>
+        </select>
+        <label>Behandeling</label>
+        <select id="risk-treatment">
+          <option value="accept">Accepteren</option>
+          <option value="avoid">Vermijden</option>
+          <option value="mitigate">Mitigeren</option>
+          <option value="transfer">Overdragen</option>
+        </select>
+        <label>Maatregelen</label>
+        <textarea id="risk-measures" placeholder="Welke maatregelen neem je?"></textarea>
+        <label>Notities</label>
+        <textarea id="risk-notes" placeholder="Optionele notities"></textarea>
+        <button onclick="saveRisk()">Risico opslaan</button>
+        <button onclick="hideAddRisk()">Annuleren</button>
+        <p id="risk-error" class="error"></p>
+      </div>
+
+      <!-- Risico tabel -->
+      <div id="risks-list"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = 'https://jhlcymefogldlulkplrk.supabase.co'
+    const SUPABASE_KEY = 'sb_publishable_Rh0P0NBYcOD1mRBpoC3cdQ_BwkrSCKY'
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+  </script>
+  <script src="app.js"></script>
+
+</body>
+</html>
