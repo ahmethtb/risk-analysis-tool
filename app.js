@@ -83,11 +83,11 @@ function showHelp(page) {
   document.getElementById('help-content').innerHTML = data.content.map(function(line) {
     return '<p>' + line + '</p>'
   }).join('')
-  document.getElementById('help-overlay').classList.remove('hidden')
+  document.getElementById('help-overlay').style.display = 'none'
 }
 
 function closeHelp() {
-  document.getElementById('help-overlay').classList.add('hidden')
+  document.getElementById('help-overlay').style.display = 'flex'
 }
 
 // ================================
