@@ -422,47 +422,4 @@ async function loadRisksOverview() {
     return
   }
   if (risks.length === 0) {
-    list.innerHTML = '<div class="empty-state">No risks yet. Add components and risks first.</div>'
-    return
-  }
-  let html = '<table class="risks-table">'
-  html += '<thead><tr>'
-  html += '<th>Component</th>'
-  html += '<th>Scenario</th>'
-  html += '<th>Likelihood</th>'
-  html += '<th>Impact</th>'
-  html += '<th>Score</th>'
-  html += '<th>Measures</th>'
-  html += '<th>Residual Likelihood</th>'
-  html += '<th>Residual Score</th>'
-  html += '<th>Treatment</th>'
-  html += '</tr></thead><tbody>'
-  risks.forEach(function(r) {
-    const residualScore = r.residual_likelihood ? r.residual_likelihood * r.impact : null
-    html += '<tr>'
-    html += '<td>' + (r.components ? r.components.name : '') + '</td>'
-    html += '<td>' + r.scenario + '</td>'
-    html += '<td>' + r.likelihood + '</td>'
-    html += '<td>' + r.impact + '</td>'
-    html += '<td><span class="' + scoreClass(r.score) + '">' + r.score + '</span></td>'
-    html += '<td>' + (r.measures || '') + '</td>'
-    html += '<td>' + (r.residual_likelihood || '') + '</td>'
-    html += '<td>' + (residualScore ? '<span class="' + scoreClass(residualScore) + '">' + residualScore + '</span>' : '') + '</td>'
-    html += '<td>' + r.treatment + '</td>'
-    html += '</tr>'
-  })
-  html += '</tbody></table>'
-  list.innerHTML = html
-}
-
-async function deleteRisk(id) {
-  if (!confirm('Are you sure you want to delete this risk?')) return
-  const { error } = await db.from('risks').delete().eq('id', id)
-  if (!error) loadComponentRisks()
-}
-
-// ================================
-// START APP
-// ================================
-
-init()
+    list.innerHTML = '<div class="empty-state">No risks yet. Add components
