@@ -98,6 +98,7 @@
       <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('tab-components')">Components</button>
         <button class="tab-btn" onclick="switchTab('tab-risks')">Risk Overview</button>
+        <button class="tab-btn" onclick="switchTab('tab-impact')">Impact Scale</button>
       </div>
 
       <!-- TAB: COMPONENTS -->
@@ -106,8 +107,6 @@
           <h3>Components</h3>
           <button onclick="showAddComponent()">+ Add Component</button>
         </div>
-
-        <!-- Add component form -->
         <div id="add-component-form" class="form-box hidden">
           <h4>New Component</h4>
           <label>Name</label>
@@ -120,8 +119,6 @@
           <button onclick="hideAddComponent()">Cancel</button>
           <p id="component-error" class="error"></p>
         </div>
-
-        <!-- Components list -->
         <div id="components-list"></div>
       </div>
 
@@ -129,6 +126,28 @@
       <div id="tab-risks" class="tab-content hidden">
         <h3>Risk Overview</h3>
         <div id="risks-overview"></div>
+      </div>
+
+      <!-- TAB: IMPACT SCALE -->
+      <div id="tab-impact" class="tab-content hidden">
+        <h3>Impact Scale</h3>
+        <p style="color:#718096; font-size:14px; margin-bottom:24px;">Define what each impact score means for this specific analysis. Leave blank to show only the number.</p>
+        <div class="form-box">
+          <label>Score 1 — Negligible</label>
+          <input type="text" id="impact-1" placeholder="E.g. Barely noticeable">
+          <label>Score 2 — Minor</label>
+          <input type="text" id="impact-2" placeholder="E.g. Small inconvenience">
+          <label>Score 3 — Moderate</label>
+          <input type="text" id="impact-3" placeholder="E.g. Significant disruption">
+          <label>Score 4 — Major</label>
+          <input type="text" id="impact-4" placeholder="E.g. Vacation becomes very difficult">
+          <label>Score 5 — Catastrophic</label>
+          <input type="text" id="impact-5" placeholder="E.g. Vacation cannot continue">
+          <button onclick="saveImpactScale()">Save Impact Scale</button>
+          <p id="impact-error" class="error"></p>
+          <p id="impact-success" class="success"></p>
+        </div>
+        <div id="impact-scale-display"></div>
       </div>
 
     </div>
@@ -155,7 +174,6 @@
         <button onclick="showAddRisk()">+ Add Risk</button>
       </div>
 
-    <!-- Add risk form -->
       <div id="add-risk-form" class="form-box hidden">
         <h4>New Risk</h4>
         <label>Scenario</label>
@@ -199,7 +217,7 @@
         <button onclick="hideAddRisk()">Cancel</button>
         <p id="risk-error" class="error"></p>
       </div>
-<!-- Risks list -->
+
       <div id="component-risks-list"></div>
     </div>
   </div>
