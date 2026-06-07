@@ -328,7 +328,6 @@ async function saveRisk() {
   const impact = parseInt(document.getElementById('risk-impact').value)
   const measures = document.getElementById('risk-measures').value
   const residual_likelihood = parseInt(document.getElementById('risk-residual-likelihood').value)
-  const residual_impact = parseInt(document.getElementById('risk-residual-impact').value)
   const treatment = document.getElementById('risk-treatment').value
   const notes = document.getElementById('risk-notes').value
   const errorEl = document.getElementById('risk-error')
@@ -350,13 +349,13 @@ async function saveRisk() {
       impact,
       measures,
       residual_likelihood,
-      residual_impact,
       treatment,
       notes
     })
 
   if (error) {
     errorEl.textContent = 'Save failed. Please try again.'
+    console.error(error)
   } else {
     document.getElementById('risk-scenario').value = ''
     document.getElementById('risk-measures').value = ''
@@ -394,15 +393,16 @@ async function loadComponentRisks() {
           <th>Impact</th>
           <th>Score</th>
           <th>Measures</th>
-          <th>Res. Likelihood</th>
-          <th>Res. Impact</th>
-          <th>Res. Score</th>
+          <th>Residual Likelihood</th>
+          <th>Residual Score</th>
           <th>Treatment</th>
           <th>Action</th>
         </tr>
       </thead>
       <tbody>
-        ${risks.map(r => `
+        ${risks.map(r => {
+          const residualScore = r.residual_likelihood ? r.residual_likelihood * r.impact : null
+          return `
           <tr>
             <td>${r.scenario}</td>
             <td>${r.likelihood}</td>
@@ -410,12 +410,11 @@ async function loadComponentRisks() {
             <td><span class="${scoreClass(r.score)}">${r.score}</span></td>
             <td>${r.measures || ''}</td>
             <td>${r.residual_likelihood || ''}</td>
-            <td>${r.residual_impact || ''}</td>
-            <td>${r.residual_score ? `<span class="${scoreClass(r.residual_score)}">${r.residual_score}</span>` : ''}</td>
+            <td>${residualScore ? `<span class="${scoreClass(residualScore)}">${residualScore}</span>` : ''}</td>
             <td>${r.treatment}</td>
             <td><button class="btn-danger" onclick="deleteRisk('${r.id}')">Delete</button></td>
           </tr>
-        `).join('')}
+        `}).join('')}
       </tbody>
     </table>
   `
@@ -450,14 +449,15 @@ async function loadRisksOverview() {
           <th>Impact</th>
           <th>Score</th>
           <th>Measures</th>
-          <th>Res. Likelihood</th>
-          <th>Res. Impact</th>
-          <th>Res. Score</th>
+          <th>Residual Likelihood</th>
+          <th>Residual Score</th>
           <th>Treatment</th>
         </tr>
       </thead>
       <tbody>
-        ${risks.map(r => `
+        ${risks.map(r => {
+          const residualScore = r.residual_likelihood ? r.residual_likelihood * r.impact : null
+          return `
           <tr>
             <td>${r.components?.name || ''}</td>
             <td>${r.scenario}</td>
@@ -466,11 +466,10 @@ async function loadRisksOverview() {
             <td><span class="${scoreClass(r.score)}">${r.score}</span></td>
             <td>${r.measures || ''}</td>
             <td>${r.residual_likelihood || ''}</td>
-            <td>${r.residual_impact || ''}</td>
-            <td>${r.residual_score ? `<span class="${scoreClass(r.residual_score)}">${r.residual_score}</span>` : ''}</td>
+            <td>${residualScore ? `<span class="${scoreClass(residualScore)}">${residualScore}</span>` : ''}</td>
             <td>${r.treatment}</td>
           </tr>
-        `).join('')}
+        `}).join('')}
       </tbody>
     </table>
   `
