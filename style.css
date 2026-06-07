@@ -10,15 +10,9 @@ body {
   color: #333;
 }
 
-/* ==================== */
-/* PAGES                */
-/* ==================== */
 .page { display: block; }
 .hidden { display: none; }
 
-/* ==================== */
-/* AUTH                 */
-/* ==================== */
 .auth-box {
   width: 420px;
   margin: 80px auto;
@@ -42,9 +36,6 @@ body {
   font-weight: 400;
 }
 
-/* ==================== */
-/* INPUTS               */
-/* ==================== */
 input, select, textarea {
   width: 100%;
   padding: 10px 14px;
@@ -67,9 +58,6 @@ textarea {
   resize: vertical;
 }
 
-/* ==================== */
-/* BUTTONS              */
-/* ==================== */
 button {
   background-color: #2b6cb0;
   color: white;
@@ -111,9 +99,6 @@ button:hover {
   background-color: #c53030;
 }
 
-/* ==================== */
-/* TOPBAR               */
-/* ==================== */
 .topbar {
   background: linear-gradient(135deg, #2b6cb0, #1a4f8a);
   color: white;
@@ -143,9 +128,6 @@ button:hover {
   background: rgba(255,255,255,0.25);
 }
 
-/* ==================== */
-/* CONTENT              */
-/* ==================== */
 .content {
   max-width: 1200px;
   margin: 36px auto;
@@ -167,9 +149,6 @@ label {
   color: #4a5568;
 }
 
-/* ==================== */
-/* DASHBOARD CARDS      */
-/* ==================== */
 .analysis-card {
   background: white;
   padding: 24px 28px;
@@ -205,9 +184,6 @@ label {
   flex-shrink: 0;
 }
 
-/* ==================== */
-/* COMPONENT CARDS      */
-/* ==================== */
 .component-card {
   background: white;
   padding: 20px 24px;
@@ -243,9 +219,6 @@ label {
   flex-shrink: 0;
 }
 
-/* ==================== */
-/* TABS                 */
-/* ==================== */
 .tabs {
   display: flex;
   gap: 4px;
@@ -278,9 +251,6 @@ label {
   border-bottom: 3px solid #2b6cb0;
 }
 
-/* ==================== */
-/* FORM BOX             */
-/* ==================== */
 .form-box {
   background: white;
   padding: 24px;
@@ -295,9 +265,6 @@ label {
   font-size: 15px;
 }
 
-/* ==================== */
-/* RISK TABLE           */
-/* ==================== */
 .risks-table {
   width: 100%;
   border-collapse: collapse;
@@ -306,24 +273,26 @@ label {
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   margin-top: 16px;
-  table-layout: auto;
+  table-layout: fixed;
 }
 
 .risks-table th {
   background: linear-gradient(135deg, #2b6cb0, #1a4f8a);
   color: white;
-  padding: 12px 16px;
+  padding: 12px 8px;
   text-align: left;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
+  overflow: hidden;
 }
 
 .risks-table td {
-  padding: 12px 16px;
+  padding: 12px 8px;
   border-bottom: 1px solid #f0f4f8;
   font-size: 13px;
   vertical-align: top;
+  overflow: hidden;
 }
 
 .risks-table tr:last-child td {
@@ -334,30 +303,14 @@ label {
   background-color: #f7fafc;
 }
 
-/* Scenario kolom breed */
-.risks-table td:nth-child(2),
-.risks-table th:nth-child(2) {
-  min-width: 220px;
-}
+/* Kolom breedtes via klassen */
+.col-component { width: 100px; }
+.col-scenario { width: auto; min-width: 200px; }
+.col-number { width: 55px; text-align: center; }
+.col-measures { width: 200px; }
+.col-treatment { width: 80px; }
+.col-action { width: 130px; }
 
-/* Nummer kolommen smal en gecentreerd */
-.risks-table td:nth-child(3),
-.risks-table th:nth-child(3),
-.risks-table td:nth-child(4),
-.risks-table th:nth-child(4),
-.risks-table td:nth-child(5),
-.risks-table th:nth-child(5),
-.risks-table td:nth-child(7),
-.risks-table th:nth-child(7),
-.risks-table td:nth-child(8),
-.risks-table th:nth-child(8) {
-  width: 60px;
-  text-align: center;
-}
-
-/* ==================== */
-/* SCORE COLORS         */
-/* ==================== */
 .score-low {
   background-color: #c6f6d5;
   color: #276749;
@@ -385,9 +338,6 @@ label {
   display: inline-block;
 }
 
-/* ==================== */
-/* MESSAGES             */
-/* ==================== */
 .error {
   color: #e53e3e;
   font-size: 13px;
@@ -400,9 +350,6 @@ label {
   margin-top: 8px;
 }
 
-/* ==================== */
-/* MISC                 */
-/* ==================== */
 hr {
   border: none;
   border-top: 1px solid #e2e8f0;
