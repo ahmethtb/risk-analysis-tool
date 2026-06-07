@@ -101,25 +101,28 @@ async function loadDashboard() {
     return
   }
   if (analyses.length === 0) {
-    list.innerHTML = '<div class="empty-state">No analyses yet. Create your first analysis.</div>'
+    list.innerHTML = '<div class="empty-state"><p>No analyses yet.</p><p>Create your first analysis to get started.</p></div>'
     return
   }
-  let html = ''
+  let html = '<div class="analyses-grid">'
   analyses.forEach(function(a) {
     html += '<div class="analysis-card">'
-    html += '<div>'
+    html += '<div class="analysis-card-body">'
     html += '<h3>' + a.name + '</h3>'
-    html += '<p>' + (a.description || '') + '</p>'
-    html += '<p><strong>Main Process:</strong> ' + (a.main_process || '') + '</p>'
-    html += '<p style="font-size:11px;color:#a0aec0;margin-top:6px;">Last updated: ' + new Date(a.updated_at).toLocaleDateString('en-GB') + '</p>'
+    if (a.description) html += '<p>' + a.description + '</p>'
+    if (a.main_process) html += '<div class="main-process">' + a.main_process + '</div>'
     html += '</div>'
+    html += '<div class="analysis-card-footer">'
+    html += '<span class="date">Updated: ' + new Date(a.updated_at).toLocaleDateString('en-GB') + '</span>'
     html += '<div class="actions">'
     html += '<button onclick="openAnalysis(\'' + a.id + '\')">Open</button>'
-    html += '<button onclick="editAnalysis(\'' + a.id + '\')">Edit</button>'
+    html += '<button class="btn-secondary" onclick="editAnalysis(\'' + a.id + '\')">Edit</button>'
     html += '<button class="btn-danger" onclick="deleteAnalysis(\'' + a.id + '\')">Delete</button>'
     html += '</div>'
     html += '</div>'
+    html += '</div>'
   })
+  html += '</div>'
   list.innerHTML = html
 }
 
@@ -157,18 +160,16 @@ async function createAnalysis() {
 
 let editingAnalysisId = null
 
-function editAnalysis(id) {
+async function editAnalysis(id) {
   editingAnalysisId = id
-  const card = document.querySelector('[onclick="openAnalysis(\'' + id + '\')"]')
-  const analysisCard = card ? card.closest('.analysis-card') : null
-  if (!analysisCard) return
-  const name = analysisCard.querySelector('h3').textContent
-  const ps = analysisCard.querySelectorAll('p')
-  const description = ps[0].textContent
-  const mainProcess = ps[1].textContent.replace('Main Process: ', '')
-  document.getElementById('new-name').value = name
-  document.getElementById('new-description').value = description
-  document.getElementById('new-process').value = mainProcess
+  const { data: analysis } = await db
+    .from('risk_analyses')
+    .select('*')
+    .eq('id', id)
+    .single()
+  document.getElementById('new-name').value = analysis.name
+  document.getElementById('new-description').value = analysis.description || ''
+  document.getElementById('new-process').value = analysis.main_process || ''
   document.getElementById('new-analysis-error').textContent = ''
   const saveBtn = document.querySelector('#page-new-analysis button[onclick="createAnalysis()"]')
   if (saveBtn) saveBtn.setAttribute('onclick', 'updateAnalysis()')
@@ -292,8 +293,8 @@ async function loadComponents() {
     html += '<div class="component-card" onclick="openComponent(\'' + c.id + '\')">'
     html += '<div>'
     html += '<h4>' + c.name + '</h4>'
-    html += '<p>' + (c.description || '') + '</p>'
-    html += '<p><strong>Dependencies:</strong> ' + (c.dependencies || '') + '</p>'
+    if (c.description) html += '<p>' + c.description + '</p>'
+    if (c.dependencies) html += '<p><strong>Dependencies:</strong> ' + c.dependencies + '</p>'
     html += '</div>'
     html += '<div class="actions">'
     html += '<button onclick="event.stopPropagation(); openComponent(\'' + c.id + '\')">Open</button>'
@@ -340,7 +341,7 @@ function backToAnalysis() {
 // ================================
 
 async function loadImpactScale() {
-  const { data, error } = await db
+  const { data } = await db
     .from('impact_scales')
     .select('*')
     .eq('analysis_id', currentAnalysisId)
