@@ -60,15 +60,15 @@ function showHelp(page) {
     'detail': {
       title: 'Risk Analysis',
       content: [
-        '<strong>Components</strong> — Add everything your main process depends on. Click a component to add risks.',
-        '<strong>Risk Overview</strong> — See all risks across all components in one table, sorted by highest score.',
+        '<strong>Dependencies</strong> — Add everything your main process depends on. Click a dependency to add risks.',
+        '<strong>Risk Overview</strong> — See all risks across all dependencies in one table, sorted by highest score.',
         '<strong>Impact Scale</strong> — Define what each impact score means for this specific analysis.'
       ]
     },
     'component': {
-      title: 'Component Risks',
+      title: 'Dependency Risks',
       content: [
-        'Here you add risks for this specific component.',
+        'Here you add risks for this specific dependency.',
         '<strong>Scenario</strong> — What can go wrong?',
         '<strong>Chance & Impact</strong> — Score from 1 (low) to 5 (high). Score is calculated automatically.',
         '<strong>Treatment</strong> — Accept, Avoid, Mitigate or Transfer.',
@@ -83,11 +83,11 @@ function showHelp(page) {
   document.getElementById('help-content').innerHTML = data.content.map(function(line) {
     return '<p>' + line + '</p>'
   }).join('')
-  document.getElementById('help-overlay').style.display = 'none'
+  document.getElementById('help-overlay').style.display = 'flex'
 }
 
 function closeHelp() {
-  document.getElementById('help-overlay').style.display = 'flex'
+  document.getElementById('help-overlay').style.display = 'none'
 }
 
 // ================================
@@ -290,7 +290,7 @@ async function openAnalysis(id) {
 }
 
 // ================================
-// COMPONENTS
+// DEPENDENCIES
 // ================================
 
 function showAddComponent() {
@@ -377,11 +377,11 @@ async function loadComponents() {
     .order('created_at', { ascending: true })
   const list = document.getElementById('components-list')
   if (error) {
-    list.innerHTML = '<p class="error">Error loading components.</p>'
+    list.innerHTML = '<p class="error">Error loading dependencies.</p>'
     return
   }
   if (components.length === 0) {
-    list.innerHTML = '<div class="empty-state">No components yet. Add your first component.</div>'
+    list.innerHTML = '<div class="empty-state">No dependencies yet. Add your first dependency.</div>'
     return
   }
   cachedComponents = {}
@@ -392,7 +392,7 @@ async function loadComponents() {
     html += '<div>'
     html += '<h4>' + c.name + '</h4>'
     if (c.description) html += '<p>' + c.description + '</p>'
-    if (c.dependencies) html += '<p><strong>Dependencies:</strong> ' + c.dependencies + '</p>'
+    if (c.dependencies) html += '<p><strong>Sub-dependencies:</strong> ' + c.dependencies + '</p>'
     html += '</div>'
     html += '<div class="actions">'
     html += '<button onclick="event.stopPropagation(); openComponent(\'' + c.id + '\')">Open</button>'
@@ -405,13 +405,13 @@ async function loadComponents() {
 }
 
 async function deleteComponent(id) {
-  if (!confirm('Are you sure you want to delete this component?')) return
+  if (!confirm('Are you sure you want to delete this dependency?')) return
   const { error } = await db.from('components').delete().eq('id', id)
   if (!error) loadComponents()
 }
 
 // ================================
-// OPEN COMPONENT
+// OPEN DEPENDENCY
 // ================================
 
 let currentComponentId = null
@@ -596,7 +596,7 @@ async function saveRisk() {
 
 function buildRiskTableHeader(includeComponent) {
   let html = '<thead><tr>'
-  if (includeComponent) html += '<th class="col-component">Component</th>'
+  if (includeComponent) html += '<th class="col-component">Dependency</th>'
   html += '<th class="col-scenario">Scenario</th>'
   html += '<th class="col-number">Chance</th>'
   html += '<th class="col-number">Impact</th>'
@@ -676,7 +676,7 @@ async function loadRisksOverview() {
     return
   }
   if (risks.length === 0) {
-    list.innerHTML = '<div class="empty-state">No risks yet. Add components and risks first.</div>'
+    list.innerHTML = '<div class="empty-state">No risks yet. Add dependencies and risks first.</div>'
     return
   }
   cachedRisks = {}
