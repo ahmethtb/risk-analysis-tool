@@ -31,6 +31,7 @@ function switchTab(tabId) {
   document.getElementById(tabId).classList.remove('hidden')
   event.target.classList.add('active')
   if (tabId === 'tab-risks') loadRisksOverview()
+  if (tabId === 'tab-impact') loadImpactScale()
 }
 
 // ================================
@@ -276,6 +277,87 @@ async function openComponent(id) {
 function backToAnalysis() {
   showPage('page-detail')
   loadComponents()
+}
+
+// ================================
+// IMPACT SCALE
+// ================================
+
+async function loadImpactScale() {
+  const { data, error } = await db
+    .from('impact_scales')
+    .select('*')
+    .eq('analysis_id', currentAnalysisId)
+    .single()
+
+  if (data) {
+    document.getElementById('impact-1').value = data.score_1 || ''
+    document.getElementById('impact-2').value = data.score_2 || ''
+    document.getElementById('impact-3').value = data.score_3 || ''
+    document.getElementById('impact-4').value = data.score_4 || ''
+    document.getElementById('impact-5').value = data.score_5 || ''
+    showImpactScaleDisplay(data)
+  }
+}
+
+function showImpactScaleDisplay(data) {
+  const display = document.getElementById('impact-scale-display')
+  if (!data || (!data.score_1 && !data.score_2 && !data.score_3 && !data.score_4 && !data.score_5)) {
+    display.innerHTML = ''
+    return
+  }
+  let html = '<div class="form-box" style="margin-top:16px;">'
+  html += '<h4>Current Impact Scale</h4>'
+  html += '<table class="risks-table">'
+  html += '<thead><tr><th style="width:80px;">Score</th><th>Description</th></tr></thead>'
+  html += '<tbody>'
+  html += '<tr><td class="col-number"><span class="score-low">1</span></td><td>' + (data.score_1 || '—') + '</td></tr>'
+  html += '<tr><td class="col-number"><span class="score-low">2</span></td><td>' + (data.score_2 || '—') + '</td></tr>'
+  html += '<tr><td class="col-number"><span class="score-medium">3</span></td><td>' + (data.score_3 || '—') + '</td></tr>'
+  html += '<tr><td class="col-number"><span class="score-high">4</span></td><td>' + (data.score_4 || '—') + '</td></tr>'
+  html += '<tr><td class="col-number"><span class="score-high">5</span></td><td>' + (data.score_5 || '—') + '</td></tr>'
+  html += '</tbody></table>'
+  html += '</div>'
+  display.innerHTML = html
+}
+
+async function saveImpactScale() {
+  const score_1 = document.getElementById('impact-1').value
+  const score_2 = document.getElementById('impact-2').value
+  const score_3 = document.getElementById('impact-3').value
+  const score_4 = document.getElementById('impact-4').value
+  const score_5 = document.getElementById('impact-5').value
+  const errorEl = document.getElementById('impact-error')
+  const successEl = document.getElementById('impact-success')
+  errorEl.textContent = ''
+  successEl.textContent = ''
+
+  const { data: existing } = await db
+    .from('impact_scales')
+    .select('id')
+    .eq('analysis_id', currentAnalysisId)
+    .single()
+
+  let error
+  if (existing) {
+    const result = await db
+      .from('impact_scales')
+      .update({ score_1, score_2, score_3, score_4, score_5 })
+      .eq('id', existing.id)
+    error = result.error
+  } else {
+    const result = await db
+      .from('impact_scales')
+      .insert({ analysis_id: currentAnalysisId, score_1, score_2, score_3, score_4, score_5 })
+    error = result.error
+  }
+
+  if (error) {
+    errorEl.textContent = 'Save failed. Please try again.'
+  } else {
+    successEl.textContent = 'Impact scale saved!'
+    showImpactScaleDisplay({ score_1, score_2, score_3, score_4, score_5 })
+  }
 }
 
 // ================================
