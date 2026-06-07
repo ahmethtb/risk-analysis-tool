@@ -422,4 +422,77 @@ async function loadRisksOverview() {
     return
   }
   if (risks.length === 0) {
-    list.innerHTML = '<div class="empty-state">No risks yet. Add components
+    list.innerHTML = '<div class="empty-state">No risks yet. Add components and risks first.</div>'
+    return
+  }
+  cachedRisks = {}
+  risks.forEach(function(r) { cachedRisks[r.id] = r })
+  let html = '<table class="risks-table">'
+  html += '<thead><tr>'
+  html += '<th>Component</th>'
+  html += '<th>Scenario</th>'
+  html += '<th>Likelihood</th>'
+  html += '<th>Impact</th>'
+  html += '<th>Score</th>'
+  html += '<th>Measures</th>'
+  html += '<th>Residual Likelihood</th>'
+  html += '<th>Residual Score</th>'
+  html += '<th>Treatment</th>'
+  html += '<th>Action</th>'
+  html += '</tr></thead><tbody>'
+  risks.forEach(function(r) {
+    const residualScore = r.residual_likelihood ? r.residual_likelihood * r.impact : null
+    html += '<tr>'
+    html += '<td>' + (r.components ? r.components.name : '') + '</td>'
+    html += '<td>' + r.scenario + '</td>'
+    html += '<td>' + r.likelihood + '</td>'
+    html += '<td>' + r.impact + '</td>'
+    html += '<td><span class="' + scoreClass(r.score) + '">' + r.score + '</span></td>'
+    html += '<td>' + (r.measures || '') + '</td>'
+    html += '<td>' + (r.residual_likelihood || '') + '</td>'
+    html += '<td>' + (residualScore ? '<span class="' + scoreClass(residualScore) + '">' + residualScore + '</span>' : '') + '</td>'
+    html += '<td>' + r.treatment + '</td>'
+    html += '<td>'
+    html += '<button onclick="editRiskFromOverview(\'' + r.id + '\')">Edit</button>'
+    html += '<button class="btn-danger" onclick="deleteRiskFromOverview(\'' + r.id + '\')">Delete</button>'
+    html += '</td>'
+    html += '</tr>'
+  })
+  html += '</tbody></table>'
+  list.innerHTML = html
+}
+
+async function deleteRiskFromOverview(id) {
+  if (!confirm('Are you sure you want to delete this risk?')) return
+  const { error } = await db.from('risks').delete().eq('id', id)
+  if (!error) loadRisksOverview()
+}
+
+async function editRiskFromOverview(id) {
+  const r = cachedRisks[id]
+  if (!r) return
+  currentComponentId = r.component_id
+  const { data: component } = await db
+    .from('components')
+    .select('*')
+    .eq('id', r.component_id)
+    .single()
+  document.getElementById('component-detail-name').textContent = component.name
+  document.getElementById('component-detail-description').textContent = component.description || ''
+  document.getElementById('component-detail-dependencies').textContent = component.dependencies || ''
+  showPage('page-component')
+  await loadComponentRisks()
+  editRisk(id)
+}
+
+async function deleteRisk(id) {
+  if (!confirm('Are you sure you want to delete this risk?')) return
+  const { error } = await db.from('risks').delete().eq('id', id)
+  if (!error) loadComponentRisks()
+}
+
+// ================================
+// START APP
+// ================================
+
+init()
