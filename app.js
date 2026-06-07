@@ -360,6 +360,49 @@ async function saveRisk() {
   }
 }
 
+function buildRiskTableHeader(includeComponent) {
+  let html = '<thead><tr>'
+  if (includeComponent) html += '<th class="col-component">Component</th>'
+  html += '<th class="col-scenario">Scenario</th>'
+  html += '<th class="col-number">Chance</th>'
+  html += '<th class="col-number">Impact</th>'
+  html += '<th class="col-number">Score</th>'
+  html += '<th class="col-treatment">Treatment</th>'
+  html += '<th class="col-measures">Measures</th>'
+  html += '<th class="col-number">Residual<br>Chance</th>'
+  html += '<th class="col-number">Residual<br>Score</th>'
+  html += '<th class="col-action">Action</th>'
+  html += '</tr></thead>'
+  return html
+}
+
+function buildRiskRow(r, includeComponent, componentName, showAction) {
+  const residualScore = r.residual_likelihood ? r.residual_likelihood * r.impact : null
+  let html = '<tr>'
+  if (includeComponent) html += '<td class="col-component">' + (componentName || '') + '</td>'
+  html += '<td class="col-scenario">' + r.scenario + '</td>'
+  html += '<td class="col-number">' + r.likelihood + '</td>'
+  html += '<td class="col-number">' + r.impact + '</td>'
+  html += '<td class="col-number"><span class="' + scoreClass(r.score) + '">' + r.score + '</span></td>'
+  html += '<td class="col-treatment">' + r.treatment + '</td>'
+  html += '<td class="col-measures">' + (r.measures || '') + '</td>'
+  html += '<td class="col-number">' + (r.residual_likelihood || '') + '</td>'
+  html += '<td class="col-number">' + (residualScore ? '<span class="' + scoreClass(residualScore) + '">' + residualScore + '</span>' : '') + '</td>'
+  if (showAction === 'component') {
+    html += '<td class="col-action">'
+    html += '<button onclick="editRisk(\'' + r.id + '\')">Edit</button>'
+    html += '<button class="btn-danger" onclick="deleteRisk(\'' + r.id + '\')">Delete</button>'
+    html += '</td>'
+  } else if (showAction === 'overview') {
+    html += '<td class="col-action">'
+    html += '<button onclick="editRiskFromOverview(\'' + r.id + '\')">Edit</button>'
+    html += '<button class="btn-danger" onclick="deleteRiskFromOverview(\'' + r.id + '\')">Delete</button>'
+    html += '</td>'
+  }
+  html += '</tr>'
+  return html
+}
+
 async function loadComponentRisks() {
   const { data: risks, error } = await db
     .from('risks')
@@ -378,33 +421,10 @@ async function loadComponentRisks() {
   cachedRisks = {}
   risks.forEach(function(r) { cachedRisks[r.id] = r })
   let html = '<table class="risks-table">'
-  html += '<thead><tr>'
-  html += '<th>Scenario</th>'
-  html += '<th>Likelihood</th>'
-  html += '<th>Impact</th>'
-  html += '<th>Score</th>'
-  html += '<th>Measures</th>'
-  html += '<th>Residual Likelihood</th>'
-  html += '<th>Residual Score</th>'
-  html += '<th>Treatment</th>'
-  html += '<th>Action</th>'
-  html += '</tr></thead><tbody>'
+  html += buildRiskTableHeader(false)
+  html += '<tbody>'
   risks.forEach(function(r) {
-    const residualScore = r.residual_likelihood ? r.residual_likelihood * r.impact : null
-    html += '<tr>'
-    html += '<td>' + r.scenario + '</td>'
-    html += '<td>' + r.likelihood + '</td>'
-    html += '<td>' + r.impact + '</td>'
-    html += '<td><span class="' + scoreClass(r.score) + '">' + r.score + '</span></td>'
-    html += '<td>' + (r.measures || '') + '</td>'
-    html += '<td>' + (r.residual_likelihood || '') + '</td>'
-    html += '<td>' + (residualScore ? '<span class="' + scoreClass(residualScore) + '">' + residualScore + '</span>' : '') + '</td>'
-    html += '<td>' + r.treatment + '</td>'
-    html += '<td>'
-    html += '<button onclick="editRisk(\'' + r.id + '\')">Edit</button>'
-    html += '<button class="btn-danger" onclick="deleteRisk(\'' + r.id + '\')">Delete</button>'
-    html += '</td>'
-    html += '</tr>'
+    html += buildRiskRow(r, false, null, 'component')
   })
   html += '</tbody></table>'
   list.innerHTML = html
@@ -428,38 +448,19 @@ async function loadRisksOverview() {
   cachedRisks = {}
   risks.forEach(function(r) { cachedRisks[r.id] = r })
   let html = '<table class="risks-table">'
-  html += '<thead><tr>'
-  html += '<th>Component</th>'
-  html += '<th>Scenario</th>'
-  html += '<th>Likelihood</th>'
-  html += '<th>Impact</th>'
-  html += '<th>Score</th>'
-  html += '<th>Measures</th>'
-  html += '<th>Residual Likelihood</th>'
-  html += '<th>Residual Score</th>'
-  html += '<th>Treatment</th>'
-  html += '<th>Action</th>'
-  html += '</tr></thead><tbody>'
+  html += buildRiskTableHeader(true)
+  html += '<tbody>'
   risks.forEach(function(r) {
-    const residualScore = r.residual_likelihood ? r.residual_likelihood * r.impact : null
-    html += '<tr>'
-    html += '<td>' + (r.components ? r.components.name : '') + '</td>'
-    html += '<td>' + r.scenario + '</td>'
-    html += '<td>' + r.likelihood + '</td>'
-    html += '<td>' + r.impact + '</td>'
-    html += '<td><span class="' + scoreClass(r.score) + '">' + r.score + '</span></td>'
-    html += '<td>' + (r.measures || '') + '</td>'
-    html += '<td>' + (r.residual_likelihood || '') + '</td>'
-    html += '<td>' + (residualScore ? '<span class="' + scoreClass(residualScore) + '">' + residualScore + '</span>' : '') + '</td>'
-    html += '<td>' + r.treatment + '</td>'
-    html += '<td>'
-    html += '<button onclick="editRiskFromOverview(\'' + r.id + '\')">Edit</button>'
-    html += '<button class="btn-danger" onclick="deleteRiskFromOverview(\'' + r.id + '\')">Delete</button>'
-    html += '</td>'
-    html += '</tr>'
+    html += buildRiskRow(r, true, r.components ? r.components.name : '', 'overview')
   })
   html += '</tbody></table>'
   list.innerHTML = html
+}
+
+async function deleteRisk(id) {
+  if (!confirm('Are you sure you want to delete this risk?')) return
+  const { error } = await db.from('risks').delete().eq('id', id)
+  if (!error) loadComponentRisks()
 }
 
 async function deleteRiskFromOverview(id) {
@@ -483,12 +484,6 @@ async function editRiskFromOverview(id) {
   showPage('page-component')
   await loadComponentRisks()
   editRisk(id)
-}
-
-async function deleteRisk(id) {
-  if (!confirm('Are you sure you want to delete this risk?')) return
-  const { error } = await db.from('risks').delete().eq('id', id)
-  if (!error) loadComponentRisks()
 }
 
 // ================================
