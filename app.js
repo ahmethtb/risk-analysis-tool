@@ -1,5 +1,5 @@
 // ================================
-// SUPABASE VERBINDING
+// SUPABASE CONNECTION
 // ================================
 
 const SUPABASE_URL = 'https://jhlcymefogldlulkplrk.supabase.co'
@@ -7,7 +7,7 @@ const SUPABASE_KEY = 'sb_publishable_Rh0P0NBYcOD1mRBpoC3cdQ_BwkrSCKY'
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
 
 // ================================
-// PAGINA NAVIGATIE
+// PAGE NAVIGATION
 // ================================
 
 function showPage(pageId) {
@@ -15,8 +15,16 @@ function showPage(pageId) {
   document.getElementById(pageId).classList.remove('hidden')
 }
 
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'))
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'))
+  document.getElementById(tabId).classList.remove('hidden')
+  event.target.classList.add('active')
+  if (tabId === 'tab-risks') loadRisksOverview()
+}
+
 // ================================
-// AUTHENTICATIE
+// AUTHENTICATION
 // ================================
 
 async function register() {
@@ -33,7 +41,7 @@ async function register() {
   if (error) {
     errorEl.textContent = error.message
   } else {
-    successEl.textContent = 'Account aangemaakt! Je kunt nu inloggen.'
+    successEl.textContent = 'Account created! You can now login.'
     showPage('page-login')
   }
 }
@@ -48,7 +56,7 @@ async function login() {
   const { error } = await db.auth.signInWithPassword({ email, password })
 
   if (error) {
-    errorEl.textContent = 'Inloggen mislukt. Controleer je e-mailadres en wachtwoord.'
+    errorEl.textContent = 'Login failed. Check your email and password.'
   } else {
     loadDashboard()
   }
@@ -60,7 +68,7 @@ async function logout() {
 }
 
 // ================================
-// OPSTARTEN: controleer of al ingelogd
+// STARTUP
 // ================================
 
 async function init() {
@@ -87,12 +95,12 @@ async function loadDashboard() {
   const list = document.getElementById('analyses-list')
 
   if (error) {
-    list.innerHTML = '<p class="error">Fout bij laden van analyses.</p>'
+    list.innerHTML = '<p class="error">Error loading analyses.</p>'
     return
   }
 
   if (analyses.length === 0) {
-    list.innerHTML = '<p>Nog geen analyses. Maak je eerste analyse aan.</p>'
+    list.innerHTML = '<div class="empty-state">No analyses yet. Create your first analysis.</div>'
     return
   }
 
@@ -101,19 +109,19 @@ async function loadDashboard() {
       <div>
         <h3>${a.name}</h3>
         <p>${a.description || ''}</p>
-        <p><strong>Hoofdproces:</strong> ${a.main_process || ''}</p>
-        <p style="font-size:11px; color:#999;">Laatst gewijzigd: ${new Date(a.updated_at).toLocaleDateString('nl-NL')}</p>
+        <p><strong>Main Process:</strong> ${a.main_process || ''}</p>
+        <p style="font-size:11px; color:#a0aec0; margin-top:6px;">Last updated: ${new Date(a.updated_at).toLocaleDateString('en-GB')}</p>
       </div>
       <div class="actions">
-        <button onclick="openAnalysis('${a.id}')">Openen</button>
-        <button onclick="deleteAnalysis('${a.id}')" style="background-color:#e53e3e;">Verwijderen</button>
+        <button onclick="openAnalysis('${a.id}')">Open</button>
+        <button class="btn-danger" onclick="deleteAnalysis('${a.id}')">Delete</button>
       </div>
     </div>
   `).join('')
 }
 
 // ================================
-// ANALYSE AANMAKEN
+// CREATE ANALYSIS
 // ================================
 
 async function createAnalysis() {
@@ -125,7 +133,7 @@ async function createAnalysis() {
   errorEl.textContent = ''
 
   if (!name) {
-    errorEl.textContent = 'Naam is verplicht.'
+    errorEl.textContent = 'Name is required.'
     return
   }
 
@@ -136,7 +144,7 @@ async function createAnalysis() {
     .insert({ user_id: user.id, name, description, main_process })
 
   if (error) {
-    errorEl.textContent = 'Opslaan mislukt. Probeer opnieuw.'
+    errorEl.textContent = 'Save failed. Please try again.'
   } else {
     document.getElementById('new-name').value = ''
     document.getElementById('new-description').value = ''
@@ -146,11 +154,11 @@ async function createAnalysis() {
 }
 
 // ================================
-// ANALYSE VERWIJDEREN
+// DELETE ANALYSIS
 // ================================
 
 async function deleteAnalysis(id) {
-  if (!confirm('Weet je zeker dat je deze analyse wilt verwijderen?')) return
+  if (!confirm('Are you sure you want to delete this analysis?')) return
 
   const { error } = await db
     .from('risk_analyses')
@@ -161,7 +169,7 @@ async function deleteAnalysis(id) {
 }
 
 // ================================
-// ANALYSE OPENEN
+// OPEN ANALYSIS
 // ================================
 
 let currentAnalysisId = null
@@ -180,11 +188,130 @@ async function openAnalysis(id) {
   document.getElementById('detail-process').textContent = analysis.main_process || ''
 
   showPage('page-detail')
-  loadRisks()
+
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'))
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'))
+  document.getElementById('tab-components').classList.remove('hidden')
+  document.querySelectorAll('.tab-btn')[0].classList.add('active')
+
+  loadComponents()
 }
 
 // ================================
-// RISICO FORMULIER TONEN/VERBERGEN
+// COMPONENTS
+// ================================
+
+function showAddComponent() {
+  document.getElementById('add-component-form').classList.remove('hidden')
+}
+
+function hideAddComponent() {
+  document.getElementById('add-component-form').classList.add('hidden')
+}
+
+async function saveComponent() {
+  const name = document.getElementById('component-name').value
+  const description = document.getElementById('component-description').value
+  const dependencies = document.getElementById('component-dependencies').value
+  const errorEl = document.getElementById('component-error')
+
+  errorEl.textContent = ''
+
+  if (!name) {
+    errorEl.textContent = 'Name is required.'
+    return
+  }
+
+  const { error } = await db
+    .from('components')
+    .insert({ analysis_id: currentAnalysisId, name, description, dependencies })
+
+  if (error) {
+    errorEl.textContent = 'Save failed. Please try again.'
+  } else {
+    document.getElementById('component-name').value = ''
+    document.getElementById('component-description').value = ''
+    document.getElementById('component-dependencies').value = ''
+    hideAddComponent()
+    loadComponents()
+  }
+}
+
+async function loadComponents() {
+  const { data: components, error } = await db
+    .from('components')
+    .select('*')
+    .eq('analysis_id', currentAnalysisId)
+    .order('created_at', { ascending: true })
+
+  const list = document.getElementById('components-list')
+
+  if (error) {
+    list.innerHTML = '<p class="error">Error loading components.</p>'
+    return
+  }
+
+  if (components.length === 0) {
+    list.innerHTML = '<div class="empty-state">No components yet. Add your first component.</div>'
+    return
+  }
+
+  list.innerHTML = components.map(c => `
+    <div class="component-card" onclick="openComponent('${c.id}')">
+      <div>
+        <h4>${c.name}</h4>
+        <p>${c.description || ''}</p>
+        <p><strong>Dependencies:</strong> ${c.dependencies || ''}</p>
+      </div>
+      <div class="actions">
+        <button onclick="event.stopPropagation(); openComponent('${c.id}')">Open</button>
+        <button class="btn-danger" onclick="event.stopPropagation(); deleteComponent('${c.id}')">Delete</button>
+      </div>
+    </div>
+  `).join('')
+}
+
+async function deleteComponent(id) {
+  if (!confirm('Are you sure you want to delete this component?')) return
+
+  const { error } = await db
+    .from('components')
+    .delete()
+    .eq('id', id)
+
+  if (!error) loadComponents()
+}
+
+// ================================
+// OPEN COMPONENT
+// ================================
+
+let currentComponentId = null
+
+async function openComponent(id) {
+  currentComponentId = id
+
+  const { data: component } = await db
+    .from('components')
+    .select('*')
+    .eq('id', id)
+    .single()
+
+  document.getElementById('component-detail-name').textContent = component.name
+  document.getElementById('component-detail-description').textContent = component.description || ''
+  document.getElementById('component-detail-dependencies').textContent = component.dependencies || ''
+
+  showPage('page-component')
+  loadComponentRisks()
+}
+
+function backToAnalysis() {
+  showPage('page-detail')
+  loadComponents()
+}
+
+// ================================
+// RISKS
 // ================================
 
 function showAddRisk() {
@@ -195,26 +322,121 @@ function hideAddRisk() {
   document.getElementById('add-risk-form').classList.add('hidden')
 }
 
-// ================================
-// RISICO'S LADEN
-// ================================
+async function saveRisk() {
+  const scenario = document.getElementById('risk-scenario').value
+  const likelihood = parseInt(document.getElementById('risk-likelihood').value)
+  const impact = parseInt(document.getElementById('risk-impact').value)
+  const measures = document.getElementById('risk-measures').value
+  const residual_likelihood = parseInt(document.getElementById('risk-residual-likelihood').value)
+  const residual_impact = parseInt(document.getElementById('risk-residual-impact').value)
+  const treatment = document.getElementById('risk-treatment').value
+  const notes = document.getElementById('risk-notes').value
+  const errorEl = document.getElementById('risk-error')
 
-async function loadRisks() {
+  errorEl.textContent = ''
+
+  if (!scenario) {
+    errorEl.textContent = 'Scenario is required.'
+    return
+  }
+
+  const { error } = await db
+    .from('risks')
+    .insert({
+      analysis_id: currentAnalysisId,
+      component_id: currentComponentId,
+      scenario,
+      likelihood,
+      impact,
+      measures,
+      residual_likelihood,
+      residual_impact,
+      treatment,
+      notes
+    })
+
+  if (error) {
+    errorEl.textContent = 'Save failed. Please try again.'
+  } else {
+    document.getElementById('risk-scenario').value = ''
+    document.getElementById('risk-measures').value = ''
+    document.getElementById('risk-notes').value = ''
+    hideAddRisk()
+    loadComponentRisks()
+  }
+}
+
+async function loadComponentRisks() {
   const { data: risks, error } = await db
     .from('risks')
     .select('*')
-    .eq('analysis_id', currentAnalysisId)
+    .eq('component_id', currentComponentId)
     .order('score', { ascending: false })
 
-  const list = document.getElementById('risks-list')
+  const list = document.getElementById('component-risks-list')
 
   if (error) {
-    list.innerHTML = '<p class="error">Fout bij laden van risicos.</p>'
+    list.innerHTML = '<p class="error">Error loading risks.</p>'
     return
   }
 
   if (risks.length === 0) {
-    list.innerHTML = '<p>Nog geen risicos toegevoegd.</p>'
+    list.innerHTML = '<div class="empty-state">No risks yet. Add your first risk.</div>'
+    return
+  }
+
+  list.innerHTML = `
+    <table class="risks-table">
+      <thead>
+        <tr>
+          <th>Scenario</th>
+          <th>Likelihood</th>
+          <th>Impact</th>
+          <th>Score</th>
+          <th>Measures</th>
+          <th>Res. Likelihood</th>
+          <th>Res. Impact</th>
+          <th>Res. Score</th>
+          <th>Treatment</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${risks.map(r => `
+          <tr>
+            <td>${r.scenario}</td>
+            <td>${r.likelihood}</td>
+            <td>${r.impact}</td>
+            <td><span class="${scoreClass(r.score)}">${r.score}</span></td>
+            <td>${r.measures || ''}</td>
+            <td>${r.residual_likelihood || ''}</td>
+            <td>${r.residual_impact || ''}</td>
+            <td>${r.residual_score ? `<span class="${scoreClass(r.residual_score)}">${r.residual_score}</span>` : ''}</td>
+            <td>${r.treatment}</td>
+            <td><button class="btn-danger" onclick="deleteRisk('${r.id}')">Delete</button></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `
+}
+
+async function loadRisksOverview() {
+  const { data: risks, error } = await db
+    .from('risks')
+    .select('*, components(name)')
+    .eq('analysis_id', currentAnalysisId)
+    .order('score', { ascending: false })
+
+  const list = document.getElementById('risks-overview')
+
+  if (error) {
+    list.innerHTML = '<p class="error">Error loading risks.</p>'
+    return
+  }
+
+  if (risks.length === 0) {
+    list.innerHTML = '<div class="empty-state">No risks yet. Add components and risks first.</div>'
     return
   }
 
@@ -224,27 +446,29 @@ async function loadRisks() {
         <tr>
           <th>Component</th>
           <th>Scenario</th>
-          <th>Kans</th>
+          <th>Likelihood</th>
           <th>Impact</th>
           <th>Score</th>
-          <th>Behandeling</th>
-          <th>Maatregelen</th>
-          <th>Notities</th>
-          <th>Actie</th>
+          <th>Measures</th>
+          <th>Res. Likelihood</th>
+          <th>Res. Impact</th>
+          <th>Res. Score</th>
+          <th>Treatment</th>
         </tr>
       </thead>
       <tbody>
         ${risks.map(r => `
           <tr>
-            <td>${r.component}</td>
+            <td>${r.components?.name || ''}</td>
             <td>${r.scenario}</td>
             <td>${r.likelihood}</td>
             <td>${r.impact}</td>
-            <td class="${scoreClass(r.score)}">${r.score}</td>
-            <td>${r.treatment}</td>
+            <td><span class="${scoreClass(r.score)}">${r.score}</span></td>
             <td>${r.measures || ''}</td>
-            <td>${r.notes || ''}</td>
-            <td><button onclick="deleteRisk('${r.id}')" style="background-color:#e53e3e;">Verwijderen</button></td>
+            <td>${r.residual_likelihood || ''}</td>
+            <td>${r.residual_impact || ''}</td>
+            <td>${r.residual_score ? `<span class="${scoreClass(r.residual_score)}">${r.residual_score}</span>` : ''}</td>
+            <td>${r.treatment}</td>
           </tr>
         `).join('')}
       </tbody>
@@ -258,69 +482,19 @@ function scoreClass(score) {
   return 'score-high'
 }
 
-// ================================
-// RISICO OPSLAAN
-// ================================
-
-async function saveRisk() {
-  const component = document.getElementById('risk-component').value
-  const scenario = document.getElementById('risk-scenario').value
-  const likelihood = parseInt(document.getElementById('risk-likelihood').value)
-  const impact = parseInt(document.getElementById('risk-impact').value)
-  const treatment = document.getElementById('risk-treatment').value
-  const measures = document.getElementById('risk-measures').value
-  const notes = document.getElementById('risk-notes').value
-  const errorEl = document.getElementById('risk-error')
-
-  errorEl.textContent = ''
-
-  if (!component || !scenario) {
-    errorEl.textContent = 'Component en scenario zijn verplicht.'
-    return
-  }
-
-  const { error } = await db
-    .from('risks')
-    .insert({
-      analysis_id: currentAnalysisId,
-      component,
-      scenario,
-      likelihood,
-      impact,
-      treatment,
-      measures,
-      notes
-    })
-
-  if (error) {
-    errorEl.textContent = 'Opslaan mislukt. Probeer opnieuw.'
-  } else {
-    document.getElementById('risk-component').value = ''
-    document.getElementById('risk-scenario').value = ''
-    document.getElementById('risk-measures').value = ''
-    document.getElementById('risk-notes').value = ''
-    hideAddRisk()
-    loadRisks()
-  }
-}
-
-// ================================
-// RISICO VERWIJDEREN
-// ================================
-
 async function deleteRisk(id) {
-  if (!confirm('Weet je zeker dat je dit risico wilt verwijderen?')) return
+  if (!confirm('Are you sure you want to delete this risk?')) return
 
   const { error } = await db
     .from('risks')
     .delete()
     .eq('id', id)
 
-  if (!error) loadRisks()
+  if (!error) loadComponentRisks()
 }
 
 // ================================
-// APP STARTEN
+// START APP
 // ================================
 
 init()
