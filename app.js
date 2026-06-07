@@ -624,5 +624,39 @@ async function editRiskFromOverview(id) {
 // ================================
 // START APP
 // ================================
+// ================================
+// HELP SYSTEM
+// ================================
 
+const helpContent = {
+  'dashboard': {
+    title: 'Dashboard',
+    content: [
+      'This is your overview of all risk analyses.',
+      'Click <strong>Open</strong> to view or continue working on an analysis.',
+      'Click <strong>Edit</strong> to change the name, description or main process.',
+      'Click <strong>+ New Analysis</strong> to start a new risk analysis.'
+    ]
+  },
+  'new-analysis': {
+    title: 'New Risk Analysis',
+    content: [
+      '<strong>Name</strong> — Give your analysis a clear name. For example: Thailand Vacation or Home Renovation.',
+      '<strong>Description</strong> — A short summary of what this analysis is about.',
+      '<strong>Main Process</strong> — Describe what you want to achieve or protect. For example: Travel safely from the Netherlands to Thailand and back.'
+    ]
+  },
+  'detail': {
+    title: 'Risk Analysis',
+    content: [
+      '<strong>Components</strong> — Add everything your main process depends on. Click on a component to add risks.',
+      '<strong>Risk Overview</strong> — See all risks across all components in one table, sorted by highest score.',
+      '<strong>Impact Scale</strong> — Define what each impact score means for this specific analysis.'
+    ]
+  },
+  'component': {
+    title: 'Component Risks',
+    content: [
+      'Here you add risks for this specific component.',
+      '<strong>Scenario</strong
 init()
