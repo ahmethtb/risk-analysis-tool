@@ -283,6 +283,7 @@ function backToAnalysis() {
 // ================================
 
 let editingRiskId = null
+let cachedRisks = {}
 
 function showAddRisk() {
   document.getElementById('add-risk-form').classList.remove('hidden')
@@ -296,15 +297,17 @@ function hideAddRisk() {
   document.getElementById('add-risk-form').classList.add('hidden')
 }
 
-function editRisk(id, scenario, likelihood, impact, measures, residualLikelihood, treatment, notes) {
+function editRisk(id) {
+  const r = cachedRisks[id]
+  if (!r) return
   editingRiskId = id
-  document.getElementById('risk-scenario').value = scenario
-  document.getElementById('risk-likelihood').value = likelihood
-  document.getElementById('risk-impact').value = impact
-  document.getElementById('risk-measures').value = measures
-  document.getElementById('risk-residual-likelihood').value = residualLikelihood
-  document.getElementById('risk-treatment').value = treatment
-  document.getElementById('risk-notes').value = notes
+  document.getElementById('risk-scenario').value = r.scenario
+  document.getElementById('risk-likelihood').value = r.likelihood
+  document.getElementById('risk-impact').value = r.impact
+  document.getElementById('risk-measures').value = r.measures || ''
+  document.getElementById('risk-residual-likelihood').value = r.residual_likelihood || 1
+  document.getElementById('risk-treatment').value = r.treatment
+  document.getElementById('risk-notes').value = r.notes || ''
   document.getElementById('add-risk-form').classList.remove('hidden')
   window.scrollTo(0, 0)
 }
@@ -372,6 +375,8 @@ async function loadComponentRisks() {
     list.innerHTML = '<div class="empty-state">No risks yet. Add your first risk.</div>'
     return
   }
+  cachedRisks = {}
+  risks.forEach(function(r) { cachedRisks[r.id] = r })
   let html = '<table class="risks-table">'
   html += '<thead><tr>'
   html += '<th>Scenario</th>'
@@ -396,7 +401,7 @@ async function loadComponentRisks() {
     html += '<td>' + (residualScore ? '<span class="' + scoreClass(residualScore) + '">' + residualScore + '</span>' : '') + '</td>'
     html += '<td>' + r.treatment + '</td>'
     html += '<td>'
-    html += '<button onclick="editRisk(\'' + r.id + '\', ' + JSON.stringify(r.scenario) + ', ' + r.likelihood + ', ' + r.impact + ', ' + JSON.stringify(r.measures || '') + ', ' + (r.residual_likelihood || 1) + ', \'' + r.treatment + '\', ' + JSON.stringify(r.notes || '') + ')">Edit</button>'
+    html += '<button onclick="editRisk(\'' + r.id + '\')">Edit</button>'
     html += '<button class="btn-danger" onclick="deleteRisk(\'' + r.id + '\')">Delete</button>'
     html += '</td>'
     html += '</tr>'
