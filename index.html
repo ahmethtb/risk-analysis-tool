@@ -9,6 +9,19 @@
 <body>
 
   <!-- ==================== -->
+  <!-- HELP OVERLAY         -->
+  <!-- ==================== -->
+  <div id="help-overlay" class="help-overlay hidden" onclick="closeHelp()">
+    <div class="help-popup" onclick="event.stopPropagation()">
+      <h3 id="help-title"></h3>
+      <div id="help-content"></div>
+      <div class="close-btn">
+        <button onclick="closeHelp()">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== -->
   <!-- PAGE: LOGIN          -->
   <!-- ==================== -->
   <div id="page-login" class="page">
@@ -54,6 +67,7 @@
       </div>
       <div id="analyses-list"></div>
     </div>
+    <button class="help-btn" onclick="showHelp('dashboard')">?</button>
   </div>
 
   <!-- ========================= -->
@@ -73,9 +87,10 @@
       <label>Main Process</label>
       <input type="text" id="new-process" placeholder="E.g. Travel safely from the Netherlands to Thailand and back">
       <button onclick="createAnalysis()">Save</button>
-      <button onclick="showPage('page-dashboard')">Cancel</button>
+      <button class="btn-secondary" onclick="showPage('page-dashboard')">Cancel</button>
       <p id="new-analysis-error" class="error"></p>
     </div>
+    <button class="help-btn" onclick="showHelp('new-analysis')">?</button>
   </div>
 
   <!-- ========================= -->
@@ -94,7 +109,6 @@
 
       <hr>
 
-      <!-- TABS -->
       <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('tab-components')">Components</button>
         <button class="tab-btn" onclick="switchTab('tab-risks')">Risk Overview</button>
@@ -116,7 +130,7 @@
           <label>Dependencies</label>
           <input type="text" id="component-dependencies" placeholder="E.g. Government, Embassy, Airlines">
           <button onclick="saveComponent()">Save Component</button>
-          <button onclick="hideAddComponent()">Cancel</button>
+          <button class="btn-secondary" onclick="hideAddComponent()">Cancel</button>
           <p id="component-error" class="error"></p>
         </div>
         <div id="components-list"></div>
@@ -151,6 +165,7 @@
       </div>
 
     </div>
+    <button class="help-btn" onclick="showHelp('detail')">?</button>
   </div>
 
   <!-- ========================= -->
@@ -214,12 +229,13 @@
         <label>Notes</label>
         <textarea id="risk-notes" placeholder="Optional notes"></textarea>
         <button onclick="saveRisk()">Save Risk</button>
-        <button onclick="hideAddRisk()">Cancel</button>
+        <button class="btn-secondary" onclick="hideAddRisk()">Cancel</button>
         <p id="risk-error" class="error"></p>
       </div>
 
       <div id="component-risks-list"></div>
     </div>
+    <button class="help-btn" onclick="showHelp('component')">?</button>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
