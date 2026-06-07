@@ -115,6 +115,7 @@ async function loadDashboard() {
     html += '</div>'
     html += '<div class="actions">'
     html += '<button onclick="openAnalysis(\'' + a.id + '\')">Open</button>'
+    html += '<button onclick="editAnalysis(\'' + a.id + '\')">Edit</button>'
     html += '<button class="btn-danger" onclick="deleteAnalysis(\'' + a.id + '\')">Delete</button>'
     html += '</div>'
     html += '</div>'
@@ -143,6 +144,61 @@ async function createAnalysis() {
   if (error) {
     errorEl.textContent = 'Save failed. Please try again.'
   } else {
+    document.getElementById('new-name').value = ''
+    document.getElementById('new-description').value = ''
+    document.getElementById('new-process').value = ''
+    loadDashboard()
+  }
+}
+
+// ================================
+// EDIT ANALYSIS
+// ================================
+
+let editingAnalysisId = null
+
+function editAnalysis(id) {
+  editingAnalysisId = id
+  const card = document.querySelector('[onclick="openAnalysis(\'' + id + '\')"]')
+  const analysisCard = card ? card.closest('.analysis-card') : null
+  if (!analysisCard) return
+  const name = analysisCard.querySelector('h3').textContent
+  const ps = analysisCard.querySelectorAll('p')
+  const description = ps[0].textContent
+  const mainProcess = ps[1].textContent.replace('Main Process: ', '')
+  document.getElementById('new-name').value = name
+  document.getElementById('new-description').value = description
+  document.getElementById('new-process').value = mainProcess
+  document.getElementById('new-analysis-error').textContent = ''
+  const saveBtn = document.querySelector('#page-new-analysis button[onclick="createAnalysis()"]')
+  if (saveBtn) saveBtn.setAttribute('onclick', 'updateAnalysis()')
+  const h2 = document.querySelector('#page-new-analysis h2')
+  if (h2) h2.textContent = 'Edit Risk Analysis'
+  showPage('page-new-analysis')
+}
+
+async function updateAnalysis() {
+  const name = document.getElementById('new-name').value
+  const description = document.getElementById('new-description').value
+  const main_process = document.getElementById('new-process').value
+  const errorEl = document.getElementById('new-analysis-error')
+  errorEl.textContent = ''
+  if (!name) {
+    errorEl.textContent = 'Name is required.'
+    return
+  }
+  const { error } = await db
+    .from('risk_analyses')
+    .update({ name, description, main_process })
+    .eq('id', editingAnalysisId)
+  if (error) {
+    errorEl.textContent = 'Save failed. Please try again.'
+  } else {
+    editingAnalysisId = null
+    const saveBtn = document.querySelector('#page-new-analysis button[onclick="updateAnalysis()"]')
+    if (saveBtn) saveBtn.setAttribute('onclick', 'createAnalysis()')
+    const h2 = document.querySelector('#page-new-analysis h2')
+    if (h2) h2.textContent = 'New Risk Analysis'
     document.getElementById('new-name').value = ''
     document.getElementById('new-description').value = ''
     document.getElementById('new-process').value = ''
@@ -289,7 +345,6 @@ async function loadImpactScale() {
     .select('*')
     .eq('analysis_id', currentAnalysisId)
     .single()
-
   if (data) {
     document.getElementById('impact-1').value = data.score_1 || ''
     document.getElementById('impact-2').value = data.score_2 || ''
@@ -311,11 +366,11 @@ function showImpactScaleDisplay(data) {
   html += '<table class="risks-table">'
   html += '<thead><tr><th style="width:80px;">Score</th><th>Description</th></tr></thead>'
   html += '<tbody>'
-  html += '<tr><td class="col-number"><span class="score-low">1</span></td><td>' + (data.score_1 || '—') + '</td></tr>'
-  html += '<tr><td class="col-number"><span class="score-low">2</span></td><td>' + (data.score_2 || '—') + '</td></tr>'
-  html += '<tr><td class="col-number"><span class="score-medium">3</span></td><td>' + (data.score_3 || '—') + '</td></tr>'
-  html += '<tr><td class="col-number"><span class="score-high">4</span></td><td>' + (data.score_4 || '—') + '</td></tr>'
-  html += '<tr><td class="col-number"><span class="score-high">5</span></td><td>' + (data.score_5 || '—') + '</td></tr>'
+  html += '<tr><td style="text-align:center;"><span class="score-low">1</span></td><td>' + (data.score_1 || '—') + '</td></tr>'
+  html += '<tr><td style="text-align:center;"><span class="score-low">2</span></td><td>' + (data.score_2 || '—') + '</td></tr>'
+  html += '<tr><td style="text-align:center;"><span class="score-medium">3</span></td><td>' + (data.score_3 || '—') + '</td></tr>'
+  html += '<tr><td style="text-align:center;"><span class="score-high">4</span></td><td>' + (data.score_4 || '—') + '</td></tr>'
+  html += '<tr><td style="text-align:center;"><span class="score-high">5</span></td><td>' + (data.score_5 || '—') + '</td></tr>'
   html += '</tbody></table>'
   html += '</div>'
   display.innerHTML = html
@@ -331,13 +386,11 @@ async function saveImpactScale() {
   const successEl = document.getElementById('impact-success')
   errorEl.textContent = ''
   successEl.textContent = ''
-
   const { data: existing } = await db
     .from('impact_scales')
     .select('id')
     .eq('analysis_id', currentAnalysisId)
     .single()
-
   let error
   if (existing) {
     const result = await db
@@ -351,7 +404,6 @@ async function saveImpactScale() {
       .insert({ analysis_id: currentAnalysisId, score_1, score_2, score_3, score_4, score_5 })
     error = result.error
   }
-
   if (error) {
     errorEl.textContent = 'Save failed. Please try again.'
   } else {
