@@ -155,7 +155,7 @@
         <button onclick="showAddRisk()">+ Add Risk</button>
       </div>
 
-      <!-- Add risk form -->
+    <!-- Add risk form -->
       <div id="add-risk-form" class="form-box hidden">
         <h4>New Risk</h4>
         <label>Scenario</label>
@@ -176,6 +176,13 @@
           <option value="4">4 - Major</option>
           <option value="5">5 - Catastrophic</option>
         </select>
+        <label>Treatment</label>
+        <select id="risk-treatment">
+          <option value="accept">Accept</option>
+          <option value="avoid">Avoid</option>
+          <option value="mitigate">Mitigate</option>
+          <option value="transfer">Transfer</option>
+        </select>
         <label>Measures</label>
         <textarea id="risk-measures" placeholder="What measures will you take?"></textarea>
         <label>Residual Likelihood (1-5)</label>
@@ -186,27 +193,9 @@
           <option value="4">4 - Likely</option>
           <option value="5">5 - Very likely</option>
         </select>
-        <label>Treatment</label>
-        <select id="risk-treatment">
-          <option value="accept">Accept</option>
-          <option value="avoid">Avoid</option>
-          <option value="mitigate">Mitigate</option>
-          <option value="transfer">Transfer</option>
-        </select>
         <label>Notes</label>
         <textarea id="risk-notes" placeholder="Optional notes"></textarea>
         <button onclick="saveRisk()">Save Risk</button>
         <button onclick="hideAddRisk()">Cancel</button>
         <p id="risk-error" class="error"></p>
       </div>
-
-      <!-- Risks list -->
-      <div id="component-risks-list"></div>
-    </div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js"></script>
-
-</body>
-</html>
