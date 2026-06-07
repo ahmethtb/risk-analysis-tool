@@ -8,9 +8,7 @@
 </head>
 <body>
 
-  <!-- ==================== -->
-  <!-- HELP OVERLAY         -->
-  <!-- ==================== -->
+  <!-- HELP OVERLAY -->
   <div id="help-overlay" class="help-overlay hidden" onclick="closeHelp()">
     <div class="help-popup" onclick="event.stopPropagation()">
       <h3 id="help-title"></h3>
@@ -21,9 +19,7 @@
     </div>
   </div>
 
-  <!-- ==================== -->
-  <!-- PAGE: LOGIN          -->
-  <!-- ==================== -->
+  <!-- PAGE: LOGIN -->
   <div id="page-login" class="page">
     <div class="auth-box">
       <h1>Risk Analysis Tool</h1>
@@ -36,9 +32,7 @@
     </div>
   </div>
 
-  <!-- ==================== -->
-  <!-- PAGE: REGISTER       -->
-  <!-- ==================== -->
+  <!-- PAGE: REGISTER -->
   <div id="page-register" class="page hidden">
     <div class="auth-box">
       <h1>Risk Analysis Tool</h1>
@@ -52,9 +46,7 @@
     </div>
   </div>
 
-  <!-- ==================== -->
-  <!-- PAGE: DASHBOARD      -->
-  <!-- ==================== -->
+  <!-- PAGE: DASHBOARD -->
   <div id="page-dashboard" class="page hidden">
     <div class="topbar">
       <h1>Risk Analysis Tool</h1>
@@ -70,9 +62,7 @@
     <button class="help-btn" onclick="showHelp('dashboard')">?</button>
   </div>
 
-  <!-- ========================= -->
-  <!-- PAGE: NEW ANALYSIS        -->
-  <!-- ========================= -->
+  <!-- PAGE: NEW ANALYSIS -->
   <div id="page-new-analysis" class="page hidden">
     <div class="topbar">
       <h1>Risk Analysis Tool</h1>
@@ -93,9 +83,7 @@
     <button class="help-btn" onclick="showHelp('new-analysis')">?</button>
   </div>
 
-  <!-- ========================= -->
-  <!-- PAGE: ANALYSIS DETAIL     -->
-  <!-- ========================= -->
+  <!-- PAGE: ANALYSIS DETAIL -->
   <div id="page-detail" class="page hidden">
     <div class="topbar">
       <h1>Risk Analysis Tool</h1>
@@ -106,9 +94,7 @@
       <h2 id="detail-name"></h2>
       <p id="detail-description"></p>
       <p><strong>Main Process:</strong> <span id="detail-process"></span></p>
-
       <hr>
-
       <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('tab-components')">Components</button>
         <button class="tab-btn" onclick="switchTab('tab-risks')">Risk Overview</button>
@@ -121,6 +107,8 @@
           <h3>Components</h3>
           <button onclick="showAddComponent()">+ Add Component</button>
         </div>
+
+        <!-- Add component form -->
         <div id="add-component-form" class="form-box hidden">
           <h4>New Component</h4>
           <label>Name</label>
@@ -133,6 +121,21 @@
           <button class="btn-secondary" onclick="hideAddComponent()">Cancel</button>
           <p id="component-error" class="error"></p>
         </div>
+
+        <!-- Edit component form -->
+        <div id="edit-component-form" class="form-box hidden">
+          <h4>Edit Component</h4>
+          <label>Name</label>
+          <input type="text" id="edit-component-name" placeholder="E.g. Passport">
+          <label>Description</label>
+          <input type="text" id="edit-component-description" placeholder="Short description">
+          <label>Dependencies</label>
+          <input type="text" id="edit-component-dependencies" placeholder="E.g. Government, Embassy, Airlines">
+          <button onclick="updateComponent()">Save Changes</button>
+          <button class="btn-secondary" onclick="hideEditComponent()">Cancel</button>
+          <p id="edit-component-error" class="error"></p>
+        </div>
+
         <div id="components-list"></div>
       </div>
 
@@ -168,9 +171,7 @@
     <button class="help-btn" onclick="showHelp('detail')">?</button>
   </div>
 
-  <!-- ========================= -->
-  <!-- PAGE: COMPONENT DETAIL    -->
-  <!-- ========================= -->
+  <!-- PAGE: COMPONENT DETAIL -->
   <div id="page-component" class="page hidden">
     <div class="topbar">
       <h1>Risk Analysis Tool</h1>
@@ -181,9 +182,7 @@
       <h2 id="component-detail-name"></h2>
       <p id="component-detail-description"></p>
       <p><strong>Dependencies:</strong> <span id="component-detail-dependencies"></span></p>
-
       <hr>
-
       <div class="content-header">
         <h3>Risks for this component</h3>
         <button onclick="showAddRisk()">+ Add Risk</button>
