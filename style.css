@@ -147,7 +147,7 @@ button:hover {
 /* CONTENT              */
 /* ==================== */
 .content {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 36px auto;
   padding: 0 24px;
 }
@@ -332,6 +332,27 @@ label {
 
 .risks-table tr:hover td {
   background-color: #f7fafc;
+}
+
+/* Scenario kolom breed */
+.risks-table td:nth-child(2),
+.risks-table th:nth-child(2) {
+  min-width: 220px;
+}
+
+/* Nummer kolommen smal en gecentreerd */
+.risks-table td:nth-child(3),
+.risks-table th:nth-child(3),
+.risks-table td:nth-child(4),
+.risks-table th:nth-child(4),
+.risks-table td:nth-child(5),
+.risks-table th:nth-child(5),
+.risks-table td:nth-child(7),
+.risks-table th:nth-child(7),
+.risks-table td:nth-child(8),
+.risks-table th:nth-child(8) {
+  width: 60px;
+  text-align: center;
 }
 
 /* ==================== */
