@@ -412,7 +412,10 @@ async function loadComponentRisks() {
             <td>${r.residual_likelihood || ''}</td>
             <td>${residualScore ? `<span class="${scoreClass(residualScore)}">${residualScore}</span>` : ''}</td>
             <td>${r.treatment}</td>
-            <td><button class="btn-danger" onclick="deleteRisk('${r.id}')">Delete</button></td>
+            <td>
+              <button onclick="editRisk('${r.id}', '${r.scenario.replace(/'/g, "\\'")}', ${r.likelihood}, ${r.impact}, '${(r.measures || '').replace(/'/g, "\\'")}', ${r.residual_likelihood || 1}, '${r.treatment}', '${(r.notes || '').replace(/'/g, "\\'")}')">Edit</button>
+              <button class="btn-danger" onclick="deleteRisk('${r.id}')">Delete</button>
+            </td>
           </tr>
         `}).join('')}
       </tbody>
@@ -420,65 +423,89 @@ async function loadComponentRisks() {
   `
 }
 
-async function loadRisksOverview() {
-  const { data: risks, error } = await db
-    .from('risks')
-    .select('*, components(name)')
-    .eq('analysis_id', currentAnalysisId)
-    .order('score', { ascending: false })
+let editingRiskId = null
 
-  const list = document.getElementById('risks-overview')
-
-  if (error) {
-    list.innerHTML = '<p class="error">Error loading risks.</p>'
-    return
-  }
-
-  if (risks.length === 0) {
-    list.innerHTML = '<div class="empty-state">No risks yet. Add components and risks first.</div>'
-    return
-  }
-
-  list.innerHTML = `
-    <table class="risks-table">
-      <thead>
-        <tr>
-          <th>Component</th>
-          <th>Scenario</th>
-          <th>Likelihood</th>
-          <th>Impact</th>
-          <th>Score</th>
-          <th>Measures</th>
-          <th>Residual Likelihood</th>
-          <th>Residual Score</th>
-          <th>Treatment</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${risks.map(r => {
-          const residualScore = r.residual_likelihood ? r.residual_likelihood * r.impact : null
-          return `
-          <tr>
-            <td>${r.components?.name || ''}</td>
-            <td>${r.scenario}</td>
-            <td>${r.likelihood}</td>
-            <td>${r.impact}</td>
-            <td><span class="${scoreClass(r.score)}">${r.score}</span></td>
-            <td>${r.measures || ''}</td>
-            <td>${r.residual_likelihood || ''}</td>
-            <td>${residualScore ? `<span class="${scoreClass(residualScore)}">${residualScore}</span>` : ''}</td>
-            <td>${r.treatment}</td>
-          </tr>
-        `}).join('')}
-      </tbody>
-    </table>
-  `
+function editRisk(id, scenario, likelihood, impact, measures, residualLikelihood, treatment, notes) {
+  editingRiskId = id
+  document.getElementById('risk-scenario').value = scenario
+  document.getElementById('risk-likelihood').value = likelihood
+  document.getElementById('risk-impact').value = impact
+  document.getElementById('risk-measures').value = measures
+  document.getElementById('risk-residual-likelihood').value = residualLikelihood
+  document.getElementById('risk-treatment').value = treatment
+  document.getElementById('risk-notes').value = notes
+  showAddRisk()
+  window.scrollTo(0, 0)
 }
 
-function scoreClass(score) {
-  if (score <= 4) return 'score-low'
-  if (score <= 12) return 'score-medium'
-  return 'score-high'
+async function saveRisk() {
+  const scenario = document.getElementById('risk-scenario').value
+  const likelihood = parseInt(document.getElementById('risk-likelihood').value)
+  const impact = parseInt(document.getElementById('risk-impact').value)
+  const measures = document.getElementById('risk-measures').value
+  const residual_likelihood = parseInt(document.getElementById('risk-residual-likelihood').value)
+  const treatment = document.getElementById('risk-treatment').value
+  const notes = document.getElementById('risk-notes').value
+  const errorEl = document.getElementById('risk-error')
+
+  errorEl.textContent = ''
+
+  if (!scenario) {
+    errorEl.textContent = 'Scenario is required.'
+    return
+  }
+
+  if (editingRiskId) {
+    const { error } = await db
+      .from('risks')
+      .update({
+        scenario,
+        likelihood,
+        impact,
+        measures,
+        residual_likelihood,
+        treatment,
+        notes
+      })
+      .eq('id', editingRiskId)
+
+    if (error) {
+      errorEl.textContent = 'Save failed. Please try again.'
+      console.error(error)
+    } else {
+      editingRiskId = null
+      document.getElementById('risk-scenario').value = ''
+      document.getElementById('risk-measures').value = ''
+      document.getElementById('risk-notes').value = ''
+      hideAddRisk()
+      loadComponentRisks()
+    }
+  } else {
+    const { error } = await db
+      .from('risks')
+      .insert({
+        analysis_id: currentAnalysisId,
+        component_id: currentComponentId,
+        scenario,
+        likelihood,
+        impact,
+        measures,
+        residual_likelihood,
+        treatment,
+        notes
+      })
+
+    if (error) {
+      errorEl.textContent = 'Save failed. Please try again.'
+      console.error(error)
+    } else {
+      document.getElementById('risk-scenario').value = ''
+      document.getElementById('risk-measures').value = ''
+      document.getElementById('risk-notes').value = ''
+      hideAddRisk()
+      loadComponentRisks()
+    }
+  }
 }
 
 async function deleteRisk(id) {
@@ -491,7 +518,6 @@ async function deleteRisk(id) {
 
   if (!error) loadComponentRisks()
 }
-
 // ================================
 // START APP
 // ================================
