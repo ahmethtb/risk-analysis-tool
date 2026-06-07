@@ -96,35 +96,35 @@
       <p><strong>Main Process:</strong> <span id="detail-process"></span></p>
       <hr>
       <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('tab-components')">Components</button>
+        <button class="tab-btn active" onclick="switchTab('tab-components')">Dependencies</button>
         <button class="tab-btn" onclick="switchTab('tab-risks')">Risk Overview</button>
         <button class="tab-btn" onclick="switchTab('tab-impact')">Impact Scale</button>
       </div>
 
-      <!-- TAB: COMPONENTS -->
+      <!-- TAB: DEPENDENCIES -->
       <div id="tab-components" class="tab-content">
         <div class="content-header">
-          <h3>Components</h3>
-          <button onclick="showAddComponent()">+ Add Component</button>
+          <h3>Dependencies</h3>
+          <button onclick="showAddComponent()">+ Add Dependency</button>
         </div>
 
-        <!-- Add component form -->
+        <!-- Add dependency form -->
         <div id="add-component-form" class="form-box hidden">
-          <h4>New Component</h4>
+          <h4>New Dependency</h4>
           <label>Name</label>
           <input type="text" id="component-name" placeholder="E.g. Passport">
           <label>Description</label>
           <input type="text" id="component-description" placeholder="Short description">
           <label>Dependencies</label>
           <input type="text" id="component-dependencies" placeholder="E.g. Government, Embassy, Airlines">
-          <button onclick="saveComponent()">Save Component</button>
+          <button onclick="saveComponent()">Save Dependency</button>
           <button class="btn-secondary" onclick="hideAddComponent()">Cancel</button>
           <p id="component-error" class="error"></p>
         </div>
 
-        <!-- Edit component form -->
+        <!-- Edit dependency form -->
         <div id="edit-component-form" class="form-box hidden">
-          <h4>Edit Component</h4>
+          <h4>Edit Dependency</h4>
           <label>Name</label>
           <input type="text" id="edit-component-name" placeholder="E.g. Passport">
           <label>Description</label>
@@ -171,7 +171,7 @@
     <button class="help-btn" onclick="showHelp('detail')">?</button>
   </div>
 
-  <!-- PAGE: COMPONENT DETAIL -->
+  <!-- PAGE: DEPENDENCY DETAIL -->
   <div id="page-component" class="page hidden">
     <div class="topbar">
       <h1>Risk Analysis Tool</h1>
@@ -184,7 +184,7 @@
       <p><strong>Dependencies:</strong> <span id="component-detail-dependencies"></span></p>
       <hr>
       <div class="content-header">
-        <h3>Risks for this component</h3>
+        <h3>Risks for this dependency</h3>
         <button onclick="showAddRisk()">+ Add Risk</button>
       </div>
 
