@@ -320,107 +320,10 @@ function showAddRisk() {
 
 function hideAddRisk() {
   document.getElementById('add-risk-form').classList.add('hidden')
-}
-
-async function saveRisk() {
-  const scenario = document.getElementById('risk-scenario').value
-  const likelihood = parseInt(document.getElementById('risk-likelihood').value)
-  const impact = parseInt(document.getElementById('risk-impact').value)
-  const measures = document.getElementById('risk-measures').value
-  const residual_likelihood = parseInt(document.getElementById('risk-residual-likelihood').value)
-  const treatment = document.getElementById('risk-treatment').value
-  const notes = document.getElementById('risk-notes').value
-  const errorEl = document.getElementById('risk-error')
-
-  errorEl.textContent = ''
-
-  if (!scenario) {
-    errorEl.textContent = 'Scenario is required.'
-    return
-  }
-
-  const { error } = await db
-    .from('risks')
-    .insert({
-      analysis_id: currentAnalysisId,
-      component_id: currentComponentId,
-      scenario,
-      likelihood,
-      impact,
-      measures,
-      residual_likelihood,
-      treatment,
-      notes
-    })
-
-  if (error) {
-    errorEl.textContent = 'Save failed. Please try again.'
-    console.error(error)
-  } else {
-    document.getElementById('risk-scenario').value = ''
-    document.getElementById('risk-measures').value = ''
-    document.getElementById('risk-notes').value = ''
-    hideAddRisk()
-    loadComponentRisks()
-  }
-}
-
-async function loadComponentRisks() {
-  const { data: risks, error } = await db
-    .from('risks')
-    .select('*')
-    .eq('component_id', currentComponentId)
-    .order('score', { ascending: false })
-
-  const list = document.getElementById('component-risks-list')
-
-  if (error) {
-    list.innerHTML = '<p class="error">Error loading risks.</p>'
-    return
-  }
-
-  if (risks.length === 0) {
-    list.innerHTML = '<div class="empty-state">No risks yet. Add your first risk.</div>'
-    return
-  }
-
-  list.innerHTML = `
-    <table class="risks-table">
-      <thead>
-        <tr>
-          <th>Scenario</th>
-          <th>Likelihood</th>
-          <th>Impact</th>
-          <th>Score</th>
-          <th>Measures</th>
-          <th>Residual Likelihood</th>
-          <th>Residual Score</th>
-          <th>Treatment</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${risks.map(r => {
-          const residualScore = r.residual_likelihood ? r.residual_likelihood * r.impact : null
-          return `
-          <tr>
-            <td>${r.scenario}</td>
-            <td>${r.likelihood}</td>
-            <td>${r.impact}</td>
-            <td><span class="${scoreClass(r.score)}">${r.score}</span></td>
-            <td>${r.measures || ''}</td>
-            <td>${r.residual_likelihood || ''}</td>
-            <td>${residualScore ? `<span class="${scoreClass(residualScore)}">${residualScore}</span>` : ''}</td>
-            <td>${r.treatment}</td>
-            <td>
-              <button onclick="editRisk('${r.id}', '${r.scenario.replace(/'/g, "\\'")}', ${r.likelihood}, ${r.impact}, '${(r.measures || '').replace(/'/g, "\\'")}', ${r.residual_likelihood || 1}, '${r.treatment}', '${(r.notes || '').replace(/'/g, "\\'")}')">Edit</button>
-              <button class="btn-danger" onclick="deleteRisk('${r.id}')">Delete</button>
-            </td>
-          </tr>
-        `}).join('')}
-      </tbody>
-    </table>
-  `
+  editingRiskId = null
+  document.getElementById('risk-scenario').value = ''
+  document.getElementById('risk-measures').value = ''
+  document.getElementById('risk-notes').value = ''
 }
 
 let editingRiskId = null
@@ -473,10 +376,6 @@ async function saveRisk() {
       errorEl.textContent = 'Save failed. Please try again.'
       console.error(error)
     } else {
-      editingRiskId = null
-      document.getElementById('risk-scenario').value = ''
-      document.getElementById('risk-measures').value = ''
-      document.getElementById('risk-notes').value = ''
       hideAddRisk()
       loadComponentRisks()
     }
@@ -499,13 +398,133 @@ async function saveRisk() {
       errorEl.textContent = 'Save failed. Please try again.'
       console.error(error)
     } else {
-      document.getElementById('risk-scenario').value = ''
-      document.getElementById('risk-measures').value = ''
-      document.getElementById('risk-notes').value = ''
       hideAddRisk()
       loadComponentRisks()
     }
   }
+}
+
+async function loadComponentRisks() {
+  const { data: risks, error } = await db
+    .from('risks')
+    .select('*')
+    .eq('component_id', currentComponentId)
+    .order('score', { ascending: false })
+
+  const list = document.getElementById('component-risks-list')
+
+  if (error) {
+    list.innerHTML = '<p class="error">Error loading risks.</p>'
+    return
+  }
+
+  if (risks.length === 0) {
+    list.innerHTML = '<div class="empty-state">No risks yet. Add your first risk.</div>'
+    return
+  }
+
+  list.innerHTML = `
+    <table class="risks-table">
+      <thead>
+        <tr>
+          <th>Scenario</th>
+          <th>Likelihood</th>
+          <th>Impact</th>
+          <th>Score</th>
+          <th>Measures</th>
+          <th>Residual Likelihood</th>
+          <th>Residual Score</th>
+          <th>Treatment</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${risks.map(r => {
+          const residualScore = r.residual_likelihood ? r.residual_likelihood * r.impact : null
+          return `
+          <tr>
+            <td>${r.scenario}</td>
+            <td>${r.likelihood}</td>
+            <td>${r.impact}</td>
+            <td><span class="${scoreClass(r.score)}">${r.score}</span></td>
+            <td>${r.measures || ''}</td>
+            <td>${r.residual_likelihood || ''}</td>
+            <td>${residualScore ? `<span class="${scoreClass(residualScore)}">${residualScore}</span>` : ''}</td>
+            <td>${r.treatment}</td>
+            <td>
+              <button onclick="editRisk('${r.id}', ${JSON.stringify(r.scenario)}, ${r.likelihood}, ${r.impact}, ${JSON.stringify(r.measures || '')}, ${r.residual_likelihood || 1}, '${r.treatment}', ${JSON.stringify(r.notes || '')})">Edit</button>
+              <button class="btn-danger" onclick="deleteRisk('${r.id}')">Delete</button>
+            </td>
+          </tr>
+        `}).join('')}
+      </tbody>
+    </table>
+  `
+}
+
+async function loadRisksOverview() {
+  const { data: risks, error } = await db
+    .from('risks')
+    .select('*, components(name)')
+    .eq('analysis_id', currentAnalysisId)
+    .order('score', { ascending: false })
+
+  const list = document.getElementById('risks-overview')
+
+  if (error) {
+    list.innerHTML = '<p class="error">Error loading risks.</p>'
+    return
+  }
+
+  if (risks.length === 0) {
+    list.innerHTML = '<div class="empty-state">No risks yet. Add components and risks first.</div>'
+    return
+  }
+
+  list.innerHTML = `
+    <table class="risks-table">
+      <thead>
+        <tr>
+          <th>Component</th>
+          <th>Scenario</th>
+          <th>Likelihood</th>
+          <th>Impact</th>
+          <th>Score</th>
+          <th>Measures</th>
+          <th>Residual Likelihood</th>
+          <th>Residual Score</th>
+          <th>Treatment</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${risks.map(r => {
+          const residualScore = r.residual_likelihood ? r.residual_likelihood * r.impact : null
+          return `
+          <tr>
+            <td>${r.components?.name || ''}</td>
+            <td>${r.scenario}</td>
+            <td>${r.likelihood}</td>
+            <td>${r.impact}</td>
+            <td><span class="${scoreClass(r.score)}">${r.score}</span></td>
+            <td>${r.measures || ''}</td>
+            <td>${r.residual_likelihood || ''}</td>
+            <td>${residualScore ? `<span class="${scoreClass(residualScore)}">${residualScore}</span>` : ''}</td>
+            <td>${r.treatment}</td>
+          </tr>
+        `}).join('')}
+      </tbody>
+    </table>
+  `
+}
+
+// ================================
+// SCORE COLOR
+// ================================
+
+function scoreClass(score) {
+  if (score <= 4) return 'score-low'
+  if (score <= 12) return 'score-medium'
+  return 'score-high'
 }
 
 async function deleteRisk(id) {
@@ -518,6 +537,7 @@ async function deleteRisk(id) {
 
   if (!error) loadComponentRisks()
 }
+
 // ================================
 // START APP
 // ================================
