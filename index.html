@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,137 +9,207 @@
 <body>
 
   <!-- ==================== -->
-  <!-- PAGINA: LOGIN         -->
+  <!-- PAGE: LOGIN          -->
   <!-- ==================== -->
   <div id="page-login" class="page">
     <div class="auth-box">
       <h1>Risk Analysis Tool</h1>
-      <h2>Inloggen</h2>
-      <input type="email" id="login-email" placeholder="E-mailadres">
-      <input type="password" id="login-password" placeholder="Wachtwoord">
-      <button onclick="login()">Inloggen</button>
-      <p>Nog geen account? <a href="#" onclick="showPage('page-register')">Registreren</a></p>
+      <h2>Login</h2>
+      <input type="email" id="login-email" placeholder="Email address">
+      <input type="password" id="login-password" placeholder="Password">
+      <button onclick="login()">Login</button>
+      <p>No account yet? <a href="#" onclick="showPage('page-register')">Register</a></p>
       <p id="login-error" class="error"></p>
     </div>
   </div>
 
   <!-- ==================== -->
-  <!-- PAGINA: REGISTREREN  -->
+  <!-- PAGE: REGISTER       -->
   <!-- ==================== -->
   <div id="page-register" class="page hidden">
     <div class="auth-box">
       <h1>Risk Analysis Tool</h1>
-      <h2>Registreren</h2>
-      <input type="email" id="register-email" placeholder="E-mailadres">
-      <input type="password" id="register-password" placeholder="Wachtwoord">
-      <button onclick="register()">Account aanmaken</button>
-      <p>Al een account? <a href="#" onclick="showPage('page-login')">Inloggen</a></p>
+      <h2>Register</h2>
+      <input type="email" id="register-email" placeholder="Email address">
+      <input type="password" id="register-password" placeholder="Password">
+      <button onclick="register()">Create account</button>
+      <p>Already have an account? <a href="#" onclick="showPage('page-login')">Login</a></p>
       <p id="register-error" class="error"></p>
       <p id="register-success" class="success"></p>
     </div>
   </div>
 
   <!-- ==================== -->
-  <!-- PAGINA: DASHBOARD    -->
+  <!-- PAGE: DASHBOARD      -->
   <!-- ==================== -->
   <div id="page-dashboard" class="page hidden">
     <div class="topbar">
       <h1>Risk Analysis Tool</h1>
-      <button onclick="logout()">Uitloggen</button>
+      <button onclick="logout()">Logout</button>
     </div>
     <div class="content">
       <div class="content-header">
-        <h2>Mijn Risicoanalyses</h2>
-        <button onclick="showPage('page-new-analysis')">+ Nieuwe Analyse</button>
+        <h2>My Risk Analyses</h2>
+        <button onclick="showPage('page-new-analysis')">+ New Analysis</button>
       </div>
       <div id="analyses-list"></div>
     </div>
   </div>
 
   <!-- ========================= -->
-  <!-- PAGINA: NIEUWE ANALYSE    -->
+  <!-- PAGE: NEW ANALYSIS        -->
   <!-- ========================= -->
   <div id="page-new-analysis" class="page hidden">
     <div class="topbar">
       <h1>Risk Analysis Tool</h1>
-      <button onclick="logout()">Uitloggen</button>
+      <button onclick="logout()">Logout</button>
     </div>
     <div class="content">
-      <h2>Nieuwe Risicoanalyse</h2>
-      <label>Naam</label>
-      <input type="text" id="new-name" placeholder="Bijv. Thailand Vakantie">
-      <label>Beschrijving</label>
-      <input type="text" id="new-description" placeholder="Korte omschrijving">
-      <label>Hoofdproces</label>
-      <input type="text" id="new-process" placeholder="Bijv. Veilig reizen van Nederland naar Thailand en terug">
-      <button onclick="createAnalysis()">Opslaan</button>
-      <button onclick="showPage('page-dashboard')">Annuleren</button>
+      <h2>New Risk Analysis</h2>
+      <label>Name</label>
+      <input type="text" id="new-name" placeholder="E.g. Thailand Vacation">
+      <label>Description</label>
+      <input type="text" id="new-description" placeholder="Short description">
+      <label>Main Process</label>
+      <input type="text" id="new-process" placeholder="E.g. Travel safely from the Netherlands to Thailand and back">
+      <button onclick="createAnalysis()">Save</button>
+      <button onclick="showPage('page-dashboard')">Cancel</button>
       <p id="new-analysis-error" class="error"></p>
     </div>
   </div>
 
   <!-- ========================= -->
-  <!-- PAGINA: ANALYSE DETAIL    -->
+  <!-- PAGE: ANALYSIS DETAIL     -->
   <!-- ========================= -->
   <div id="page-detail" class="page hidden">
     <div class="topbar">
       <h1>Risk Analysis Tool</h1>
-      <button onclick="logout()">Uitloggen</button>
+      <button onclick="logout()">Logout</button>
     </div>
     <div class="content">
-      <button onclick="showPage('page-dashboard')">← Terug naar dashboard</button>
+      <button class="btn-back" onclick="showPage('page-dashboard')">← Back to dashboard</button>
       <h2 id="detail-name"></h2>
       <p id="detail-description"></p>
-      <p><strong>Hoofdproces:</strong> <span id="detail-process"></span></p>
+      <p><strong>Main Process:</strong> <span id="detail-process"></span></p>
+
+      <hr>
+
+      <!-- TABS -->
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('tab-components')">Components</button>
+        <button class="tab-btn" onclick="switchTab('tab-risks')">Risk Overview</button>
+      </div>
+
+      <!-- TAB: COMPONENTS -->
+      <div id="tab-components" class="tab-content">
+        <div class="content-header">
+          <h3>Components</h3>
+          <button onclick="showAddComponent()">+ Add Component</button>
+        </div>
+
+        <!-- Add component form -->
+        <div id="add-component-form" class="form-box hidden">
+          <h4>New Component</h4>
+          <label>Name</label>
+          <input type="text" id="component-name" placeholder="E.g. Passport">
+          <label>Description</label>
+          <input type="text" id="component-description" placeholder="Short description">
+          <label>Dependencies</label>
+          <input type="text" id="component-dependencies" placeholder="E.g. Government, Embassy, Airlines">
+          <button onclick="saveComponent()">Save Component</button>
+          <button onclick="hideAddComponent()">Cancel</button>
+          <p id="component-error" class="error"></p>
+        </div>
+
+        <!-- Components list -->
+        <div id="components-list"></div>
+      </div>
+
+      <!-- TAB: RISK OVERVIEW -->
+      <div id="tab-risks" class="tab-content hidden">
+        <h3>Risk Overview</h3>
+        <div id="risks-overview"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================= -->
+  <!-- PAGE: COMPONENT DETAIL    -->
+  <!-- ========================= -->
+  <div id="page-component" class="page hidden">
+    <div class="topbar">
+      <h1>Risk Analysis Tool</h1>
+      <button onclick="logout()">Logout</button>
+    </div>
+    <div class="content">
+      <button class="btn-back" onclick="backToAnalysis()">← Back to analysis</button>
+      <h2 id="component-detail-name"></h2>
+      <p id="component-detail-description"></p>
+      <p><strong>Dependencies:</strong> <span id="component-detail-dependencies"></span></p>
 
       <hr>
 
       <div class="content-header">
-        <h3>Risico's</h3>
-        <button onclick="showAddRisk()">+ Risico toevoegen</button>
+        <h3>Risks for this component</h3>
+        <button onclick="showAddRisk()">+ Add Risk</button>
       </div>
 
-      <!-- Risico toevoegen formulier -->
-      <div id="add-risk-form" class="hidden">
-        <h4>Nieuw Risico</h4>
-        <label>Component</label>
-        <input type="text" id="risk-component" placeholder="Bijv. Paspoort">
+      <!-- Add risk form -->
+      <div id="add-risk-form" class="form-box hidden">
+        <h4>New Risk</h4>
         <label>Scenario</label>
-        <input type="text" id="risk-scenario" placeholder="Bijv. Paspoort kwijt">
-        <label>Kans (1-5)</label>
+        <input type="text" id="risk-scenario" placeholder="E.g. Passport lost">
+        <label>Likelihood (1-5)</label>
         <select id="risk-likelihood">
-          <option value="1">1 - Zeer onwaarschijnlijk</option>
-          <option value="2">2 - Onwaarschijnlijk</option>
-          <option value="3">3 - Mogelijk</option>
-          <option value="4">4 - Waarschijnlijk</option>
-          <option value="5">5 - Zeer waarschijnlijk</option>
+          <option value="1">1 - Very unlikely</option>
+          <option value="2">2 - Unlikely</option>
+          <option value="3">3 - Possible</option>
+          <option value="4">4 - Likely</option>
+          <option value="5">5 - Very likely</option>
         </select>
         <label>Impact (1-5)</label>
         <select id="risk-impact">
-          <option value="1">1 - Verwaarloosbaar</option>
-          <option value="2">2 - Klein</option>
-          <option value="3">3 - Matig</option>
-          <option value="4">4 - Groot</option>
-          <option value="5">5 - Catastrofaal</option>
+          <option value="1">1 - Negligible</option>
+          <option value="2">2 - Minor</option>
+          <option value="3">3 - Moderate</option>
+          <option value="4">4 - Major</option>
+          <option value="5">5 - Catastrophic</option>
         </select>
-        <label>Behandeling</label>
+        <label>Measures</label>
+        <textarea id="risk-measures" placeholder="What measures will you take?"></textarea>
+        <label>Residual Likelihood (1-5)</label>
+        <select id="risk-residual-likelihood">
+          <option value="1">1 - Very unlikely</option>
+          <option value="2">2 - Unlikely</option>
+          <option value="3">3 - Possible</option>
+          <option value="4">4 - Likely</option>
+          <option value="5">5 - Very likely</option>
+        </select>
+        <label>Residual Impact (1-5)</label>
+        <select id="risk-residual-impact">
+          <option value="1">1 - Negligible</option>
+          <option value="2">2 - Minor</option>
+          <option value="3">3 - Moderate</option>
+          <option value="4">4 - Major</option>
+          <option value="5">5 - Catastrophic</option>
+        </select>
+        <label>Treatment</label>
         <select id="risk-treatment">
-          <option value="accept">Accepteren</option>
-          <option value="avoid">Vermijden</option>
-          <option value="mitigate">Mitigeren</option>
-          <option value="transfer">Overdragen</option>
+          <option value="accept">Accept</option>
+          <option value="avoid">Avoid</option>
+          <option value="mitigate">Mitigate</option>
+          <option value="transfer">Transfer</option>
         </select>
-        <label>Maatregelen</label>
-        <textarea id="risk-measures" placeholder="Welke maatregelen neem je?"></textarea>
-        <label>Notities</label>
-        <textarea id="risk-notes" placeholder="Optionele notities"></textarea>
-        <button onclick="saveRisk()">Risico opslaan</button>
-        <button onclick="hideAddRisk()">Annuleren</button>
+        <label>Notes</label>
+        <textarea id="risk-notes" placeholder="Optional notes"></textarea>
+        <button onclick="saveRisk()">Save Risk</button>
+        <button onclick="hideAddRisk()">Cancel</button>
         <p id="risk-error" class="error"></p>
       </div>
 
-      <!-- Risico tabel -->
-      <div id="risks-list"></div>
+      <!-- Risks list -->
+      <div id="component-risks-list"></div>
     </div>
   </div>
 
