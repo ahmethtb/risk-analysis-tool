@@ -72,8 +72,7 @@ function showHelp(page) {
         '<strong>Scenario</strong> — What can go wrong?',
         '<strong>Chance & Impact</strong> — Score from 1 (low) to 5 (high). Score is calculated automatically.',
         '<strong>Treatment</strong> — Accept, Avoid, Mitigate or Transfer.',
-        '<strong>Measures</strong> — What will you do to reduce the risk?',
-        '<strong>Residual Chance</strong> — What is the chance after your measures are applied?'
+        '<strong>Measures</strong> — What will you do to reduce the risk?'
       ]
     }
   }
@@ -539,7 +538,6 @@ function editRisk(id) {
   document.getElementById('risk-likelihood').value = r.likelihood
   document.getElementById('risk-impact').value = r.impact
   document.getElementById('risk-measures').value = r.measures || ''
-  document.getElementById('risk-residual-likelihood').value = r.residual_likelihood || 1
   document.getElementById('risk-treatment').value = r.treatment
   document.getElementById('risk-notes').value = r.notes || ''
   document.getElementById('add-risk-form').classList.remove('hidden')
@@ -551,7 +549,6 @@ async function saveRisk() {
   const likelihood = parseInt(document.getElementById('risk-likelihood').value)
   const impact = parseInt(document.getElementById('risk-impact').value)
   const measures = document.getElementById('risk-measures').value
-  const residual_likelihood = parseInt(document.getElementById('risk-residual-likelihood').value)
   const treatment = document.getElementById('risk-treatment').value
   const notes = document.getElementById('risk-notes').value
   const errorEl = document.getElementById('risk-error')
@@ -563,7 +560,7 @@ async function saveRisk() {
   if (editingRiskId) {
     const { error } = await db
       .from('risks')
-      .update({ scenario, likelihood, impact, measures, residual_likelihood, treatment, notes })
+      .update({ scenario, likelihood, impact, measures, treatment, notes })
       .eq('id', editingRiskId)
     if (error) {
       errorEl.textContent = 'Save failed. Please try again.'
@@ -581,7 +578,6 @@ async function saveRisk() {
         likelihood,
         impact,
         measures,
-        residual_likelihood,
         treatment,
         notes
       })
@@ -603,15 +599,12 @@ function buildRiskTableHeader(includeComponent) {
   html += '<th class="col-number">Score</th>'
   html += '<th class="col-treatment">Treatment</th>'
   html += '<th class="col-measures">Measures</th>'
-  html += '<th class="col-number">Residual<br>Chance</th>'
-  html += '<th class="col-number">Residual<br>Score</th>'
   html += '<th class="col-action">Action</th>'
   html += '</tr></thead>'
   return html
 }
 
 function buildRiskRow(r, includeComponent, componentName, showAction) {
-  const residualScore = r.residual_likelihood ? r.residual_likelihood * r.impact : null
   let html = '<tr>'
   if (includeComponent) html += '<td class="col-component">' + (componentName || '') + '</td>'
   html += '<td class="col-scenario">' + r.scenario + '</td>'
@@ -620,8 +613,6 @@ function buildRiskRow(r, includeComponent, componentName, showAction) {
   html += '<td class="col-number"><span class="' + scoreClass(r.score) + '">' + r.score + '</span></td>'
   html += '<td class="col-treatment">' + r.treatment + '</td>'
   html += '<td class="col-measures">' + (r.measures || '') + '</td>'
-  html += '<td class="col-number">' + (r.residual_likelihood || '') + '</td>'
-  html += '<td class="col-number">' + (residualScore ? '<span class="' + scoreClass(residualScore) + '">' + residualScore + '</span>' : '') + '</td>'
   if (showAction === 'component') {
     html += '<td class="col-action">'
     html += '<button onclick="editRisk(\'' + r.id + '\')">Edit</button>'
