@@ -108,28 +108,26 @@
           <button onclick="showAddComponent()">+ Add Dependency</button>
         </div>
 
-        <!-- Add dependency form -->
         <div id="add-component-form" class="form-box hidden">
           <h4>New Dependency</h4>
           <label>Name</label>
           <input type="text" id="component-name" placeholder="E.g. Passport">
           <label>Description</label>
           <input type="text" id="component-description" placeholder="Short description">
-          <label>Dependencies</label>
+          <label>Sub-dependencies</label>
           <input type="text" id="component-dependencies" placeholder="E.g. Government, Embassy, Airlines">
           <button onclick="saveComponent()">Save Dependency</button>
           <button class="btn-secondary" onclick="hideAddComponent()">Cancel</button>
           <p id="component-error" class="error"></p>
         </div>
 
-        <!-- Edit dependency form -->
         <div id="edit-component-form" class="form-box hidden">
           <h4>Edit Dependency</h4>
           <label>Name</label>
           <input type="text" id="edit-component-name" placeholder="E.g. Passport">
           <label>Description</label>
           <input type="text" id="edit-component-description" placeholder="Short description">
-          <label>Dependencies</label>
+          <label>Sub-dependencies</label>
           <input type="text" id="edit-component-dependencies" placeholder="E.g. Government, Embassy, Airlines">
           <button onclick="updateComponent()">Save Changes</button>
           <button class="btn-secondary" onclick="hideEditComponent()">Cancel</button>
@@ -181,7 +179,7 @@
       <button class="btn-back" onclick="backToAnalysis()">← Back to analysis</button>
       <h2 id="component-detail-name"></h2>
       <p id="component-detail-description"></p>
-      <p><strong>Dependencies:</strong> <span id="component-detail-dependencies"></span></p>
+      <p><strong>Sub-dependencies:</strong> <span id="component-detail-dependencies"></span></p>
       <hr>
       <div class="content-header">
         <h3>Risks for this dependency</h3>
@@ -217,14 +215,6 @@
         </select>
         <label>Measures</label>
         <textarea id="risk-measures" placeholder="What measures will you take?"></textarea>
-        <label>Residual Likelihood (1-5)</label>
-        <select id="risk-residual-likelihood">
-          <option value="1">1 - Very unlikely</option>
-          <option value="2">2 - Unlikely</option>
-          <option value="3">3 - Possible</option>
-          <option value="4">4 - Likely</option>
-          <option value="5">5 - Very likely</option>
-        </select>
         <label>Notes</label>
         <textarea id="risk-notes" placeholder="Optional notes"></textarea>
         <button onclick="saveRisk()">Save Risk</button>
